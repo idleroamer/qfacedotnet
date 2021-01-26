@@ -23,7 +23,7 @@ def facenet_type(self: object) -> object:
             return 'double'
         return self.type
     elif self.type.is_list:
-        return 'Lis<{0}>'.format(facenet_type(self.type.nested))
+        return '{0}[]'.format(facenet_type(self.type.nested))
     elif self.type.is_map:
         return 'Dictionary<string, {0}>'.format(facenet_type(self.type.nested))
     else:
@@ -32,6 +32,10 @@ def facenet_type(self: object) -> object:
             return ''.join(split[:-1]) + '.' + split[-1]
         else:
             return split[0]
+
+
+def has_return_value(self):
+    return not self.type.name == 'void'
 
 
 FileSystem.strict = True
@@ -44,6 +48,7 @@ setattr(qface.idl.domain.Operation, 'facenet_type', property(facenet_type))
 setattr(qface.idl.domain.Property, 'facenet_type', property(facenet_type))
 setattr(qface.idl.domain.Parameter, 'facenet_type', property(facenet_type))
 
+setattr(qface.idl.domain.Operation, 'has_return_value', property(has_return_value))
 
 here = Path(__file__).dirname()
 inputs = []
@@ -65,3 +70,15 @@ for module in system.modules:
             module_path = '/'.join(module.name_parts)
             ctx.update({'path': module_path})
             generator.write('{{path}}/I' + interface.name + '.cs', 'DBusInterface.cs.template', ctx)
+        for struct in module.structs:
+            ctx.update({'module': module})
+            ctx.update({'struct': struct})
+            module_path = '/'.join(module.name_parts)
+            ctx.update({'path': module_path})
+            generator.write('{{path}}/' + struct.name + '.cs', 'Struct.cs.template', ctx)
+        for enum in module.enums:
+            ctx.update({'module': module})
+            ctx.update({'enum': enum})
+            module_path = '/'.join(module.name_parts)
+            ctx.update({'path': module_path})
+            generator.write('{{path}}/' + enum.name + '.cs', 'Enum.cs.template', ctx)

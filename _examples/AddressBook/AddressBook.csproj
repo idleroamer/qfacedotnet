@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+      <OutputType>Exe</OutputType>
+      <TargetFramework>netcoreapp3.1</TargetFramework>
+    </PropertyGroup>
+
+    <Target Name="Generate" BeforeTargets="BeforeCompile" Inputs="AddressBook.qface" Outputs="Examples/AddressBook/Contact.cs">
+      <Message Text="Generate files..." Importance="High" />
+      <Exec Command="python3 ../../codegen.py --src . --input AddressBook.qface" />
+    </Target>
+ 
+    <ItemGroup>
+    <ProjectReference Include="/lhome/moemami/tools/Tmds.DBus/src/Tmds.DBus/Tmds.DBus.csproj" />
+    </ItemGroup>
+</Project>
