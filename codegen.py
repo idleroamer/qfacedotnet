@@ -25,7 +25,7 @@ def facenet_type(self: object) -> object:
     elif self.type.is_list:
         return '{0}[]'.format(facenet_type(self.type.nested))
     elif self.type.is_map:
-        return 'Dictionary<string, {0}>'.format(facenet_type(self.type.nested))
+        return 'IDictionary<string, {0}>'.format(facenet_type(self.type.nested))
     else:
         split = self.type.name.split(".")
         if len(split) > 1:
@@ -70,6 +70,7 @@ for module in system.modules:
             module_path = '/'.join(module.name_parts)
             ctx.update({'path': module_path})
             generator.write('{{path}}/I' + interface.name + '.cs', 'DBusInterface.cs.template', ctx)
+            generator.write('{{path}}/' + interface.name + 'Base.cs', 'DBusAdapter.cs.template', ctx)
         for struct in module.structs:
             ctx.update({'module': module})
             ctx.update({'struct': struct})
