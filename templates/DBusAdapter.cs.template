@@ -19,12 +19,12 @@ namespace {{module.qualified_name}}
 	    {% endfor %}
     }
 
-    public abstract class {{interface.name}}Base : I{{interface.name}}
+    public abstract class {{interface.name}}DBusAdapter : I{{interface.name}}
     {
         protected static ObjectPath _Path = new ObjectPath("/{{interface.qualified_name|replace(".","/")}}");
         protected {{interface.name}}Properties _Properties = default ({{interface.name}}Properties);
 
-        protected {{interface.name}}Base() {
+        protected {{interface.name}}DBusAdapter() {
             _Properties = new {{interface.name}}Properties();
         }
 
@@ -34,6 +34,14 @@ namespace {{module.qualified_name}}
 
         {% for operation in interface.operations %}
         public abstract Task{% if operation.has_return_value %}<{{operation.facenet_type}}>{% endif %} {{operation.name}}Async({%- for parameter in operation.parameters -%} {{parameter.facenet_type}} {{parameter.name}}{{ ", " if not loop.last else "" }}{% endfor %});
+        {% endfor %}
+
+        {% for signal in interface.signals %}
+        public event Action<{{signal.name}}Args> On{{signal.name}};
+        public Task<IDisposable> Watch{{signal.name}}Async(Action<{{signal.name}}Args> handler)
+        {
+            return SignalWatcher.AddAsync(this, nameof(On{{signal.name}}), handler);
+        }
         {% endfor %}
 
         public Task<{{interface.name}}Properties> GetAllAsync()
