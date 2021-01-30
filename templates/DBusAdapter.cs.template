@@ -38,6 +38,10 @@ namespace {{module.qualified_name}}
 
         {% for signal in interface.signals %}
         public event Action<{{signal.name}}Args> On{{signal.name}};
+        protected virtual void Raise{{signal.name}}({{signal.name}}Args args)
+        {
+            On{{signal.name}}?.Invoke(args);
+        }
         public Task<IDisposable> Watch{{signal.name}}Async(Action<{{signal.name}}Args> handler)
         {
             return SignalWatcher.AddAsync(this, nameof(On{{signal.name}}), handler);
