@@ -12,9 +12,13 @@ namespace Tests.AddressBook
             RaisecontactCreated(contactCreatedArg);
             return Task.CompletedTask;
         }
+
+        public contactCreatedArgs lastCreatedContact;
         public override Task createNewContactAsync()
         {
-            return Task.Run( () => { 
+            return Task.Run( () => {
+                RaisecontactCreated(lastCreatedContact);
+                return Task.CompletedTask;
                                    } );
         }
         public override Task selectContactAsync(int contactId)

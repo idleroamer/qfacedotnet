@@ -10,7 +10,7 @@ namespace {{module.qualified_name}}
     {
         private I{{interface.name}} TmdsProxy;
         protected static ObjectPath _DefaultPath = new ObjectPath("/{{interface.qualified_name|replace(".","/")}}");
-        private ObjectPath _Path;
+        private readonly ObjectPath _Path;
         private {{interface.name}}Properties _Properties = default ({{interface.name}}Properties);
 
         public {{interface.name}}DBusProxy(Connection conn, string serviceName, string path = "/{{interface.qualified_name|replace(".","/")}}" ) {
