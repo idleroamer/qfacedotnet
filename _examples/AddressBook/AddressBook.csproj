@@ -2,14 +2,20 @@
 
     <PropertyGroup>
       <OutputType>Exe</OutputType>
-      <TargetFramework>netcoreapp3.1</TargetFramework>
+      <TargetFramework>netcoreapp5</TargetFramework>
     </PropertyGroup>
 
-    <Target Name="Generate" BeforeTargets="BeforeCompile" Inputs="AddressBook.qface" Outputs="Examples/AddressBook/Contact.cs">
+    <Target Name="Generate" BeforeTargets="BeforeBuild;BeforeRebuild">
       <Message Text="Generate files..." Importance="High" />
-      <Exec Command="python3 ../../codegen.py --src . --input AddressBook.qface" />
+      <Exec Command="python3 ../../codegen.py --src . --input AddressBook.qface" Outputs="Examples/AddressBook/*.cs">
+        <Output ItemName="Generated" TaskParameter="Outputs" />
+      </Exec>
+      <ItemGroup>
+        <Compile Include="@(Generated)" />
+        <FileWrites Include="@(Generated)" />
+      </ItemGroup>
     </Target>
- 
+
     <ItemGroup>
     <PackageReference Include="Tmds.DBus" Version="0.9.1" />
     </ItemGroup>

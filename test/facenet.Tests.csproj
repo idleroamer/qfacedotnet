@@ -1,13 +1,19 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>netcoreapp5</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <Target Name="Generate" BeforeTargets="BeforeCompile" Inputs="AddressBookTests.qface" Outputs="Tests/AddressBook">
-    <Message Text="Generate files..." Importance="High" />
-    <Exec Command="python3 ../codegen.py --src . --input AddressBookTests.qface" />
+  <Target Name="Generate" BeforeTargets="BeforeBuild;BeforeRebuild">
+      <Message Text="Generate files..." Importance="High" />
+      <Exec Command="python3 ../codegen.py --src . --input AddressBookTests.qface" Outputs="Tests/AddressBook/*.cs">
+        <Output ItemName="Generated" TaskParameter="Outputs" />
+      </Exec>
+      <ItemGroup>
+        <Compile Include="@(Generated)" />
+        <FileWrites Include="@(Generated)" />
+      </ItemGroup>
   </Target>
 
   <ItemGroup>
