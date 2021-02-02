@@ -11,6 +11,6 @@
     </Target>
  
     <ItemGroup>
-    <ProjectReference Include="/lhome/moemami/tools/Tmds.DBus/src/Tmds.DBus/Tmds.DBus.csproj" />
+    <PackageReference Include="Tmds.DBus" Version="0.5.0" />
     </ItemGroup>
 </Project>
