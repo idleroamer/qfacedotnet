@@ -71,6 +71,7 @@ for module in system.modules:
             ctx.update({'path': module_path})
             generator.write('{{path}}/I' + interface.name + '.cs', 'DBusInterface.cs.template', ctx)
             generator.write('{{path}}/' + interface.name + 'DBusAdapter.cs', 'DBusAdapter.cs.template', ctx)
+            generator.write('{{path}}/' + interface.name + 'DBusProxy.cs', 'DBusProxy.cs.template', ctx)
         for struct in module.structs:
             ctx.update({'module': module})
             ctx.update({'struct': struct})
