@@ -17,6 +17,17 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
+    - name: Install dbus
+      run: sudo apt-get install dbus dbus-x11
+
+    - name: Install python3
+      run: |
+        sudo apt-get install python3
+        sudo apt-get install python3-setuptools       
+    - name: Install dependencies
+      run: |
+        pip3 install --upgrade pip
+        if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
