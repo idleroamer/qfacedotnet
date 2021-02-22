@@ -7,7 +7,7 @@
 
   <Target Name="Generate" BeforeTargets="BeforeBuild;BeforeRebuild">
       <Message Text="Generate files..." Importance="High" />
-      <Exec Command="python3 ../codegen.py --src . --input AddressBookTests.qface" Outputs="Tests/AddressBook/*.cs">
+      <Exec Command="python3 ../generator/codegen.py --src . --input AddressBookTests.qface" Outputs="Tests/AddressBook/*.cs">
         <Output ItemName="Generated" TaskParameter="Outputs" />
       </Exec>
       <ItemGroup>

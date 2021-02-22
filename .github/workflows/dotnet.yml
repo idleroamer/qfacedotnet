@@ -27,7 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip3 install --upgrade pip
-        if [ -f requirements.txt ]; then pip3 install -r requirements.txt; fi
+        pip3 install -r generator/requirements.txt
     - name: Restore dependencies
       run: dotnet restore
     - name: Build

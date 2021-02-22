@@ -29,7 +29,7 @@ namespace {{module.qualified_name}}
         }
 
         {% for property in interface.properties %}
-        public {{property.facenet_type}} {{property.name}}
+        public virtual {{property.facenet_type}} {{property.name}}
         {
             get => _Properties.{{property.name}};
             set {

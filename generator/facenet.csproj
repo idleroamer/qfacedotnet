@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>facenet</PackageId>
+    <TargetFramework>netcoreapp5</TargetFramework>
+    <Description>facenet.dbus Library</Description>
+    <VersionPrefix>0.1.2</VersionPrefix>
+    <Authors>Mostafa Emami</Authors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <PackageTags>dbus, qface</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/idleroamer/facenet</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Mostafa Emami</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="codegen.py">
+        <CopyToOutputDirectory>always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="templates/*.template">
+        <CopyToOutputDirectory>always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="requirements.txt">
+        <CopyToOutputDirectory>always</CopyToOutputDirectory>
+    </Content>
+    <PackageReference Include="Tmds.DBus" Version="0.9.1" />
+  </ItemGroup>
+
+</Project>
