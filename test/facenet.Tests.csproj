@@ -17,6 +17,7 @@
   </Target>
 
   <ItemGroup>
+    <ProjectReference Include="../src/facenet.ObjectManager.csproj" />
     <PackageReference Include="Tmds.DBus" Version="0.9.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">

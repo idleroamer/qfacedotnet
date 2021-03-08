@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Tmds.DBus;
+using facenet;
 
 namespace {{module.qualified_name}}
 {
@@ -27,7 +28,18 @@ namespace {{module.qualified_name}}
 
         protected {{interface.name}}DBusAdapter(string path = "/{{interface.qualified_name|replace(".","/")}}") {
             _Properties = new {{interface.name}}Properties();
+            _Properties.ready = true;
             _Path = path;
+        }
+
+        public async Task RegisterObject(Connection conn) {
+            (await facenet.ObjectManager.Manager(conn)).RegisterObject(_Path, new Dictionary<string, IDictionary<string, object>>());
+            await conn.RegisterObjectAsync(this);
+        }
+
+        public async Task UnregisterObject(Connection conn) {
+            (await facenet.ObjectManager.Manager(conn)).UnregisterObject(_Path, new string[]{});
+            conn.UnregisterObject(this);
         }
 
         {% for property in interface.properties %}
@@ -61,7 +73,7 @@ namespace {{module.qualified_name}}
 
         {% for signal in interface.signals %}
         public event Action<{{signal.name}}Args>{{signal.name}};
-        protected virtual void Raise{{signal.name}}({{signal.name}}Args args)
+        protected virtual void Emit{{signal.name}}({{signal.name}}Args args)
         {
             {{signal.name}}?.Invoke(args);
         }
@@ -84,6 +96,9 @@ namespace {{module.qualified_name}}
                 val = _Properties.{{property.name}};
             }
 	        {% endfor %}
+            if (prop == "ready") {
+                val = _Properties.ready;
+            }
             return Task.FromResult(val);
         }
 
