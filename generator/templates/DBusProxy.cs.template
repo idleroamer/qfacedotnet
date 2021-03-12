@@ -45,6 +45,10 @@ namespace {{module.qualified_name}}
             {% endif %}
         }
 	    {% endfor %}
+        public bool ready
+        {
+            get => _Properties.ready;
+        }
 
         {% for operation in interface.operations %}
         public Task{% if operation.has_return_value %}<{{operation.facenet_type}}>{% endif %} {{operation.name}}Async({%- for parameter in operation.parameters -%} {{parameter.facenet_type}} {{parameter.name}}{{ ", " if not loop.last else "" }}{% endfor %}) {

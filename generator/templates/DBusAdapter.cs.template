@@ -15,6 +15,8 @@ namespace {{module.qualified_name}}
         {% endif %}
 	    public {{property.facenet_type}} {{property.name}};
 	    {% endfor %}
+        [Property(Access = PropertyAccess.Read)]
+        public bool ready;
     }
 
     public abstract class {{interface.name}}DBusAdapter : I{{interface.name}}
@@ -40,6 +42,16 @@ namespace {{module.qualified_name}}
             }
         }
 	    {% endfor %}
+        public virtual bool ready
+        {
+            get => _Properties.ready;
+            set {
+                if (_Properties.ready != value) {
+                    _Properties.ready = value;
+                    OnPropertiesChanged?.Invoke(PropertyChanges.ForProperty("ready", value));
+                }
+            }
+        }
 	
 	    public ObjectPath ObjectPath { get => _Path;}
 
