@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Tmds.DBus;
+using facenet;
 
 namespace {{module.qualified_name}}
 {
@@ -10,24 +11,83 @@ namespace {{module.qualified_name}}
     {
         private I{{interface.name}} TmdsProxy;
         protected static ObjectPath _DefaultPath = new ObjectPath("/{{interface.qualified_name|replace(".","/")}}");
+        private string _serviceName;
         private readonly ObjectPath _Path;
-        private {{interface.name}}Properties _Properties = default ({{interface.name}}Properties);
+        private {{interface.name}}Properties _Properties;
+        private Connection _conn;
+        private bool _noObjectManagement = false;
 
-        public {{interface.name}}DBusProxy(Connection conn, string serviceName, string path = "/{{interface.qualified_name|replace(".","/")}}" ) {
+        public {{interface.name}}DBusProxy(Connection conn, string path = "/{{interface.qualified_name|replace(".","/")}}") {
             _Path = path;
-            TmdsProxy = conn.CreateProxy<I{{interface.name}}>(serviceName, path);
-            Task.Run(async () =>
-            {
-                _Properties = await TmdsProxy.GetAllAsync();
-            }).Wait();
-            {% for signal in interface.signals %}
-            TmdsProxy.Watch{{signal.name}}Async(args => {{signal.name}}?.Invoke(args));
-            {% endfor %}
-            TmdsProxy.WatchPropertiesAsync(propertyChanges => {
-                foreach (KeyValuePair<string, object> changed in propertyChanges.Changed)
-                {_Properties.GetType().GetProperty(changed.Key)?.SetValue(_Properties, changed.Value);}
-            });
+            _conn = conn;
+            _Properties = new {{interface.name}}Properties();
+        }
 
+        public async Task Connect(string serviceName)
+        {
+            if (!string.IsNullOrWhiteSpace(serviceName)) {
+                _noObjectManagement = true;
+                _serviceName = serviceName;
+            }
+            else {
+                _noObjectManagement = false;
+                (await ObjectManager.Manager(_conn)).InterfacesAdded += args => {
+                    if (args.objectPath == _Path) {
+                        RefreshConnection();
+                    }
+                };
+                (await ObjectManager.Manager(_conn)).InterfacesRemoved += args => {
+                    if (args.objectPath == _Path) {
+                        RefreshConnection();
+                    }
+                };
+            }
+            await RefreshConnection();
+        }
+
+        private async Task RefreshConnection()
+        {
+            if (!_noObjectManagement) {
+                _serviceName = (await ObjectManager.Manager(_conn)).ObjectService(_Path);
+            }
+            if (!string.IsNullOrWhiteSpace(_serviceName))
+            {
+                TmdsProxy = _conn.CreateProxy<IAddressBook>(_serviceName, _Path);
+                {% for signal in interface.signals %}
+                await TmdsProxy.Watch{{signal.name}}Async(args => {{signal.name}}?.Invoke(args));
+                {% endfor %}
+                await TmdsProxy.WatchPropertiesAsync(propertyChanges =>
+                {
+                    foreach (KeyValuePair<string, object> changed in propertyChanges.Changed)
+                    { _Properties.GetType().GetProperty(changed.Key)?.SetValue(_Properties, changed.Value); }
+                    if (propertyChanges.Changed.Length != 0) {
+                        OnPropertiesChanged?.Invoke(propertyChanges);
+                    }
+                });
+                await GetAllProperties();
+            }
+            // TODO set ready to false
+        }
+
+        private async Task GetAllProperties()
+        {
+            var properties = await TmdsProxy.GetAllAsync();
+            List<KeyValuePair<string, object>> changedProperties = new List<KeyValuePair<string, object>>();
+            {% for property in interface.properties %}
+            if (_Properties.{{property.name}} != properties.{{property.name}}) 
+            {
+                _Properties.{{property.name}} = properties.{{property.name}};
+                changedProperties.Add(new KeyValuePair<string, object>("{{property.name}}", properties.{{property.name}}));
+            }
+            {% endfor %}
+            if (_Properties.ready != properties.ready) 
+            {
+                _Properties.ready = properties.ready;
+                changedProperties.Add(new KeyValuePair<string, object>("ready", properties.ready));
+            }
+            if (changedProperties.Count != 0) {
+                OnPropertiesChanged?.Invoke(new PropertyChanges(changedProperties.ToArray()));
+            }
         }
 
         public ObjectPath ObjectPath { get => _Path;}
@@ -45,6 +105,10 @@ namespace {{module.qualified_name}}
             {% endif %}
         }
 	    {% endfor %}
+        public bool ready
+        {
+            get => _Properties.ready;
+        }
 
         {% for operation in interface.operations %}
         public Task{% if operation.has_return_value %}<{{operation.facenet_type}}>{% endif %} {{operation.name}}Async({%- for parameter in operation.parameters -%} {{parameter.facenet_type}} {{parameter.name}}{{ ", " if not loop.last else "" }}{% endfor %}) {
@@ -55,5 +119,7 @@ namespace {{module.qualified_name}}
         {% for signal in interface.signals %}
         public event Action<{{signal.name}}Args> {{signal.name}};
         {% endfor %}
+
+        public event Action<PropertyChanges> OnPropertiesChanged;
     }
 }

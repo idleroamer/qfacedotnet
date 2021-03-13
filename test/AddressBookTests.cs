@@ -21,17 +21,22 @@ namespace Tests.AddressBook
                 await conn1.ConnectAsync();
 
                 var conn2 = new Connection(address);
-                var conn2Info = await conn2.ConnectAsync();
+                await conn2.ConnectAsync();
                 var addressBook = new AddressBook();
-                await conn2.RegisterObjectAsync(addressBook);
-                var conn2Name = conn2Info.LocalName;
-                addressBook.isLoaded = true;
-                var proxy = new AddressBookDBusProxy(conn1, conn2Name);
+                await addressBook.RegisterObject(conn2);
+		        addressBook.isLoaded = true;
+                var proxy = new AddressBookDBusProxy(conn1);
+                var proxyReady = new TaskCompletionSource<PropertyChanges>();
+                proxy.OnPropertiesChanged += args => proxyReady.SetResult(args);
+                await proxy.Connect(null);
+                await proxyReady.Task;
                 Assert.Equal(proxy.isLoaded, true);
-                var tcs = new TaskCompletionSource<PropertyChanges>();
-                addressBook.OnPropertiesChanged += args => tcs.SetResult(args);
+
+                // check if setproperty from proxy side works
+                var tcsProxy2 = new TaskCompletionSource<PropertyChanges>();
+                addressBook.OnPropertiesChanged += args => tcsProxy2.SetResult(args);
                 proxy.isLoaded = false;
-                var reply = await tcs.Task;
+                await tcsProxy2.Task;
                 Assert.Equal(addressBook.isLoaded, false);
             }
         }
@@ -47,21 +52,29 @@ namespace Tests.AddressBook
                 await conn1.ConnectAsync();
 
                 var conn2 = new Connection(address);
-                var conn2Info = await conn2.ConnectAsync();
+                await conn2.ConnectAsync();
                 var addressBook = new AddressBook();
-                await conn2.RegisterObjectAsync(addressBook);
-                var contact = new Contact{name = "FooName", number = "FooNumber"};
-                addressBook.lastCreatedContact = new contactCreatedArgs{contact = contact};
-                var conn2Name = conn2Info.LocalName;
-                var proxy = new AddressBookDBusProxy(conn1, conn2Name);
+                await addressBook.RegisterObject(conn2);
+                var contact = new Contact { name = "FooName", number = "FooNumber" };
+                addressBook.lastCreatedContact = new contactCreatedArgs { contact = contact };
+                
+                var proxy = new AddressBookDBusProxy(conn1);
+                var proxyReady = new TaskCompletionSource<PropertyChanges>();
+                proxy.OnPropertiesChanged += args => proxyReady.SetResult(args);
+
+                await proxy.Connect(null);
+                await proxyReady.Task;
+                Assert.Equal(proxy.ready, true);
+
                 var tcsAdapter = new TaskCompletionSource<contactCreatedArgs>();
-                var tcsProxy = new TaskCompletionSource<contactCreatedArgs>();
                 addressBook.contactCreated += args => tcsAdapter.SetResult(args);
-                proxy.contactCreated += args => tcsProxy.SetResult(args);
+                
+                var tcsProxy2 = new TaskCompletionSource<contactCreatedArgs>();
+                proxy.contactCreated += args => tcsProxy2.SetResult(args);
                 proxy.createNewContactAsync();
 
                 var eventAdapter = await tcsAdapter.Task;
-                var eventProxy = await tcsAdapter.Task;
+                var eventProxy = await tcsProxy2.Task;
                 Assert.Equal(eventAdapter.contact.name, eventProxy.contact.name);
                 Assert.Equal(eventAdapter.contact.number, eventProxy.contact.number);
             }
@@ -77,16 +90,22 @@ namespace Tests.AddressBook
                 await conn1.ConnectAsync();
 
                 var conn2 = new Connection(address);
-                var conn2Info = await conn2.ConnectAsync();
+                await conn2.ConnectAsync();
                 var addressBook = new AddressBook();
-                await conn2.RegisterObjectAsync(addressBook);
+                await addressBook.RegisterObject(conn2);
                 var contact = new Contact();
                 contact.name = "FooName";
                 contact.number = "FooNumber";
                 var contactCreatedArg = new contactCreatedArgs();
                 contactCreatedArg.contact = contact;
-                var conn2Name = conn2Info.LocalName;
-                var proxy = new AddressBookDBusProxy(conn1, conn2Name);
+                var proxy = new AddressBookDBusProxy(conn1);
+                var proxyReady = new TaskCompletionSource<PropertyChanges>();
+                proxy.OnPropertiesChanged += args => proxyReady.SetResult(args);
+
+                await proxy.Connect(null);
+                await proxyReady.Task;
+                Assert.Equal(proxy.ready, true);
+                
                 var tcs = new TaskCompletionSource<contactCreatedArgs>();
                 proxy.contactCreated += args => tcs.SetResult(args);
                 await addressBook.mockCreateNewContactAsync(contactCreatedArg);
@@ -94,7 +113,8 @@ namespace Tests.AddressBook
                 var reply = await tcs.Task;
                 Assert.Equal(contactCreatedArg.contact.name, reply.contact.name);
                 Assert.Equal(contactCreatedArg.contact.number, reply.contact.number);
-            }    
+            }
         }
+
     }
 }

@@ -16,7 +16,10 @@
       </ItemGroup>
     </Target>
 
-    <ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/facenet.ObjectManager.csproj" />
     <PackageReference Include="Tmds.DBus" Version="0.9.1" />
-    </ItemGroup>
+  </ItemGroup>
+
+
 </Project>

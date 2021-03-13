@@ -9,7 +9,7 @@ namespace Tests.AddressBook
     {
         public Task mockCreateNewContactAsync(contactCreatedArgs contactCreatedArg)
         {
-            RaisecontactCreated(contactCreatedArg);
+            EmitcontactCreated(contactCreatedArg);
             return Task.CompletedTask;
         }
 
@@ -17,7 +17,7 @@ namespace Tests.AddressBook
         public override Task createNewContactAsync()
         {
             return Task.Run( () => {
-                RaisecontactCreated(lastCreatedContact);
+                EmitcontactCreated(lastCreatedContact);
                 return Task.CompletedTask;
                                    } );
         }

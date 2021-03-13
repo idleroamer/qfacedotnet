@@ -18,7 +18,7 @@ namespace Examples.AddressBook
                 await connection.ConnectAsync();
                 await connection.RegisterServiceAsync("facenet.examples.addressbook");
                 var addressBook = new AddressBook();
-                await connection.RegisterObjectAsync(addressBook);
+                await addressBook.RegisterObject(connection);
                 
                 Console.WriteLine("Press CTRL+C to quit");
                 await Task.Delay(-1);
