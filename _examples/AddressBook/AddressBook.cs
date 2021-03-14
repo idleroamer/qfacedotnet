@@ -5,7 +5,7 @@ using Tmds.DBus;
 
 namespace Examples.AddressBook
 {
-    public class AddressBook : AddressBookDBusAdapter
+    public class AddressBook : IAddressBook
     {
         public override Task createNewContactAsync()
         {

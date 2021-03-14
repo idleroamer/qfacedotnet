@@ -9,7 +9,7 @@ namespace {{module.qualified_name}}
 {
     public class {{interface.name}}DBusProxy
     {
-        private I{{interface.name}} TmdsProxy;
+        private IDBus{{interface.name}} TmdsProxy;
         protected static ObjectPath _DefaultPath = new ObjectPath("/{{interface.qualified_name|replace(".","/")}}");
         private string _serviceName;
         private readonly ObjectPath _Path;
@@ -52,7 +52,7 @@ namespace {{module.qualified_name}}
             }
             if (!string.IsNullOrWhiteSpace(_serviceName))
             {
-                TmdsProxy = _conn.CreateProxy<IAddressBook>(_serviceName, _Path);
+                TmdsProxy = _conn.CreateProxy<IDBus{{interface.name}}>(_serviceName, _Path);
                 {% for signal in interface.signals %}
                 await TmdsProxy.Watch{{signal.name}}Async(args => {{signal.name}}?.Invoke(args));
                 {% endfor %}
@@ -61,7 +61,7 @@ namespace {{module.qualified_name}}
                     foreach (KeyValuePair<string, object> changed in propertyChanges.Changed)
                     { _Properties.GetType().GetProperty(changed.Key)?.SetValue(_Properties, changed.Value); }
                     if (propertyChanges.Changed.Length != 0) {
-                        OnPropertiesChanged?.Invoke(propertyChanges);
+                        PropertiesChanged?.Invoke(propertyChanges);
                     }
                 });
                 await GetAllProperties();
@@ -86,7 +86,7 @@ namespace {{module.qualified_name}}
                 changedProperties.Add(new KeyValuePair<string, object>("ready", properties.ready));
             }
             if (changedProperties.Count != 0) {
-                OnPropertiesChanged?.Invoke(new PropertyChanges(changedProperties.ToArray()));
+                PropertiesChanged?.Invoke(new PropertyChanges(changedProperties.ToArray()));
             }
         }
 
@@ -120,6 +120,6 @@ namespace {{module.qualified_name}}
         public event Action<{{signal.name}}Args> {{signal.name}};
         {% endfor %}
 
-        public event Action<PropertyChanges> OnPropertiesChanged;
+        public event Action<PropertyChanges> PropertiesChanged;
     }
 }

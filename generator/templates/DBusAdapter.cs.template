@@ -20,16 +20,24 @@ namespace {{module.qualified_name}}
         public bool ready;
     }
 
-    public abstract class {{interface.name}}DBusAdapter : I{{interface.name}}
+    public class {{interface.name}}DBusAdapter : IDBus{{interface.name}}
     {
         protected static ObjectPath _DefaultPath = new ObjectPath("/{{interface.qualified_name|replace(".","/")}}");
         private readonly ObjectPath _Path;
-	    protected {{interface.name}}Properties _Properties = default ({{interface.name}}Properties);
+        protected I{{interface.name}} _impl;
 
-        protected {{interface.name}}DBusAdapter(string path = "/{{interface.qualified_name|replace(".","/")}}") {
-            _Properties = new {{interface.name}}Properties();
-            _Properties.ready = true;
+	    public ObjectPath ObjectPath { get => _Path;}
+
+        public {{interface.name}}DBusAdapter({{interface.name}} impl, string path = "/{{interface.qualified_name|replace(".","/")}}") {
+            _impl = impl;
             _Path = path;
+            {% for property in interface.properties %}
+            _impl.{{property.name}}Changed += args => PropertiesChanged?.Invoke(PropertyChanges.ForProperty("ready", args));
+	        {% endfor %}
+            _impl.readyChanged += args => PropertiesChanged?.Invoke(PropertyChanges.ForProperty("ready", args));
+            {% for signal in interface.signals %}
+            _impl.{{signal.name}} += args => {{signal.name}}?.Invoke(args);
+            {% endfor %}
         }
 
         public async Task RegisterObject(Connection conn) {
@@ -45,38 +53,26 @@ namespace {{module.qualified_name}}
         {% for property in interface.properties %}
         public virtual {{property.facenet_type}} {{property.name}}
         {
-            get => _Properties.{{property.name}};
-            set {
-                if (_Properties.{{property.name}} != value) {
-                    _Properties.{{property.name}} = value;
-                    OnPropertiesChanged?.Invoke(PropertyChanges.ForProperty("{{property.name}}", value));
-                }
-            }
+            get => _impl.{{property.name}};
+            set => _impl.Set{{property.name}}(value);
         }
 	    {% endfor %}
         public virtual bool ready
         {
-            get => _Properties.ready;
-            set {
-                if (_Properties.ready != value) {
-                    _Properties.ready = value;
-                    OnPropertiesChanged?.Invoke(PropertyChanges.ForProperty("ready", value));
-                }
-            }
+            get => _impl.ready;
+            set => _impl.SetReady(value);
         }
 	
-	    public ObjectPath ObjectPath { get => _Path;}
-
         {% for operation in interface.operations %}
-        public abstract Task{% if operation.has_return_value %}<{{operation.facenet_type}}>{% endif %} {{operation.name}}Async({%- for parameter in operation.parameters -%} {{parameter.facenet_type}} {{parameter.name}}{{ ", " if not loop.last else "" }}{% endfor %});
+        public Task{% if operation.has_return_value %}<{{operation.facenet_type}}>{% endif %} {{operation.name}}Async({%- for parameter in operation.parameters -%} {{parameter.facenet_type}} {{parameter.name}}{{ ", " if not loop.last else "" }}{% endfor %})
+        {
+            return _impl.{{operation.name}}Async({%- for parameter in operation.parameters -%}{{parameter.name}}{{ ", " if not loop.last else "" }}{% endfor %});
+        }
         {% endfor %}
 
         {% for signal in interface.signals %}
         public event Action<{{signal.name}}Args>{{signal.name}};
-        protected virtual void Emit{{signal.name}}({{signal.name}}Args args)
-        {
-            {{signal.name}}?.Invoke(args);
-        }
+
         public Task<IDisposable> Watch{{signal.name}}Async(Action<{{signal.name}}Args> handler)
         {
             return SignalWatcher.AddAsync(this, "{{signal.name}}", handler);
@@ -85,7 +81,7 @@ namespace {{module.qualified_name}}
 
         public Task<{{interface.name}}Properties> GetAllAsync()
         {
-            return Task.FromResult(_Properties);
+            return Task.FromResult(_impl.Properties);
         }
 
         public Task<object> GetAsync(string prop)
@@ -93,39 +89,34 @@ namespace {{module.qualified_name}}
             object val = null;
             {% for property in interface.properties %}
             {{ "else " if not loop.first else "" }}if (prop == "{{property.name}}") {
-                val = _Properties.{{property.name}};
+                val = _impl.{{property.name}};
             }
 	        {% endfor %}
             if (prop == "ready") {
-                val = _Properties.ready;
+                val = _impl.ready;
             }
             return Task.FromResult(val);
         }
 
         public Task SetAsync(string prop, object val)
         {
-            bool propChanged = false;
             {% for property in interface.properties %}
             {% if not property.readonly %}
             {{ "else " if not loop.first else "" }}if (prop == "{{property.name}}") {
-                if (val is {{property.facenet_type}} && _Properties.{{property.name}} != ({{property.facenet_type}}) val) {
-                    _Properties.{{property.name}} = ({{property.facenet_type}}) val;
-                    propChanged = true;
+                if (val is {{property.facenet_type}}) {
+                    _impl.{{property.name}} = ({{property.facenet_type}}) val;
                 }
             }
             {% endif %}
 	        {% endfor %}
-	        if (propChanged) {
-	            OnPropertiesChanged?.Invoke(PropertyChanges.ForProperty(prop, val));
-	        }
             return Task.CompletedTask;
         }
 
         public Task<IDisposable> WatchPropertiesAsync(Action<PropertyChanges> handler)
         {
-            return SignalWatcher.AddAsync(this, nameof(OnPropertiesChanged), handler);
+            return SignalWatcher.AddAsync(this, nameof(PropertiesChanged), handler);
         }
 
-        public event Action<PropertyChanges> OnPropertiesChanged;
+        public event Action<PropertyChanges> PropertiesChanged;
     }
 }
