@@ -16,7 +16,7 @@ namespace {{module.qualified_name}}
      {% endfor %}
 
     [DBusInterface("{{interface.qualified_name}}")]
-    public interface I{{interface.name}} : IDBusObject
+    public interface IDBus{{interface.name}} : IDBusObject
     {
     {% for operation in interface.operations %}
     {% if operation.comment %}

@@ -5,11 +5,11 @@ using Tmds.DBus;
 
 namespace Tests.AddressBook
 {
-    public class AddressBook : AddressBookDBusAdapter
+    public class AddressBook : IAddressBook
     {
         public Task mockCreateNewContactAsync(contactCreatedArgs contactCreatedArg)
         {
-            EmitcontactCreated(contactCreatedArg);
+            OncontactCreated(contactCreatedArg);
             return Task.CompletedTask;
         }
 
@@ -17,7 +17,7 @@ namespace Tests.AddressBook
         public override Task createNewContactAsync()
         {
             return Task.Run( () => {
-                EmitcontactCreated(lastCreatedContact);
+                OncontactCreated(lastCreatedContact);
                 return Task.CompletedTask;
                                    } );
         }

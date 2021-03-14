@@ -69,7 +69,8 @@ for module in system.modules:
             ctx.update({'interface': interface})
             module_path = '/'.join(module.name_parts)
             ctx.update({'path': module_path})
-            generator.write('{{path}}/I' + interface.name + '.cs', 'DBusInterface.cs.template', ctx)
+            generator.write('{{path}}/I' + interface.name + '.cs', 'InterfaceBase.cs.template', ctx)
+            generator.write('{{path}}/I' + interface.name + 'DBus.cs', 'DBusInterface.cs.template', ctx)
             generator.write('{{path}}/' + interface.name + 'DBusAdapter.cs', 'DBusAdapter.cs.template', ctx)
             generator.write('{{path}}/' + interface.name + 'DBusProxy.cs', 'DBusProxy.cs.template', ctx)
         for struct in module.structs:
