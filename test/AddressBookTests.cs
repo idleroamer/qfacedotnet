@@ -22,10 +22,10 @@ namespace Tests.AddressBook
 
                 var conn2 = new Connection(address);
                 await conn2.ConnectAsync();
-                var addressBook = new AddressBook();
-                var addressBookAdapter = new AddressBookDBusAdapter(addressBook);
+                var addressBookImpl = new AddressBookImpl();
+                var addressBookAdapter = new AddressBookDBusAdapter(addressBookImpl);
                 await addressBookAdapter.RegisterObject(conn2);
-		        addressBook.isLoaded = true;
+		        addressBookImpl.isLoaded = true;
                 var proxy = new AddressBookDBusProxy(conn1);
                 var proxyReady = new TaskCompletionSource<bool>();
                 proxy.readyChanged += args => proxyReady.SetResult(args);
@@ -35,10 +35,10 @@ namespace Tests.AddressBook
 
                 // check if setproperty from proxy side works
                 var tcsProxy2 = new TaskCompletionSource<bool>();
-                addressBook.isLoadedChanged += args => tcsProxy2.SetResult(args);
+                addressBookImpl.isLoadedChanged += args => tcsProxy2.SetResult(args);
                 proxy.isLoaded = false;
                 await tcsProxy2.Task;
-                Assert.Equal(addressBook.isLoaded, false);
+                Assert.Equal(addressBookImpl.isLoaded, false);
             }
         }
 
@@ -54,11 +54,11 @@ namespace Tests.AddressBook
 
                 var conn2 = new Connection(address);
                 await conn2.ConnectAsync();
-                var addressBook = new AddressBook();
-                var addressBookAdapter = new AddressBookDBusAdapter(addressBook);
+                var addressBookImpl = new AddressBookImpl();
+                var addressBookAdapter = new AddressBookDBusAdapter(addressBookImpl);
                 await addressBookAdapter.RegisterObject(conn2);
                 var contact = new Contact { name = "FooName", number = "FooNumber" };
-                addressBook.lastCreatedContact = new contactCreatedArgs { contact = contact };
+                addressBookImpl.lastCreatedContact = new contactCreatedArgs { contact = contact };
                 
                 var proxy = new AddressBookDBusProxy(conn1);
                 var proxyReady = new TaskCompletionSource<bool>();
@@ -69,7 +69,7 @@ namespace Tests.AddressBook
                 Assert.Equal(proxy.ready, true);
 
                 var tcsAdapter = new TaskCompletionSource<contactCreatedArgs>();
-                addressBook.contactCreated += args => tcsAdapter.SetResult(args);
+                addressBookImpl.contactCreated += args => tcsAdapter.SetResult(args);
                 
                 var tcsProxy2 = new TaskCompletionSource<contactCreatedArgs>();
                 proxy.contactCreated += args => tcsProxy2.SetResult(args);
@@ -93,8 +93,8 @@ namespace Tests.AddressBook
 
                 var conn2 = new Connection(address);
                 await conn2.ConnectAsync();
-                var addressBook = new AddressBook();
-                var addressBookAdapter = new AddressBookDBusAdapter(addressBook);
+                var addressBookImpl = new AddressBookImpl();
+                var addressBookAdapter = new AddressBookDBusAdapter(addressBookImpl);
                 await addressBookAdapter.RegisterObject(conn2);
                 var contact = new Contact();
                 contact.name = "FooName";
@@ -111,7 +111,7 @@ namespace Tests.AddressBook
                 
                 var tcs = new TaskCompletionSource<contactCreatedArgs>();
                 proxy.contactCreated += args => tcs.SetResult(args);
-                await addressBook.mockCreateNewContactAsync(contactCreatedArg);
+                await addressBookImpl.mockCreateNewContactAsync(contactCreatedArg);
 
                 var reply = await tcs.Task;
                 Assert.Equal(contactCreatedArg.contact.name, reply.contact.name);
