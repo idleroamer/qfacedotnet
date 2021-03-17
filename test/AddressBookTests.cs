@@ -27,9 +27,9 @@ namespace Tests.AddressBook
                 await addressBookAdapter.RegisterObject(conn2);
 		        addressBook.isLoaded = true;
                 var proxy = new AddressBookDBusProxy(conn1);
-                var proxyReady = new TaskCompletionSource<PropertyChanges>();
-                proxy.PropertiesChanged += args => proxyReady.SetResult(args);
-                await proxy.Connect(null);
+                var proxyReady = new TaskCompletionSource<bool>();
+                proxy.readyChanged += args => proxyReady.SetResult(args);
+                await proxy.CreateProxy(null);
                 await proxyReady.Task;
                 Assert.Equal(proxy.isLoaded, true);
 
@@ -61,10 +61,10 @@ namespace Tests.AddressBook
                 addressBook.lastCreatedContact = new contactCreatedArgs { contact = contact };
                 
                 var proxy = new AddressBookDBusProxy(conn1);
-                var proxyReady = new TaskCompletionSource<PropertyChanges>();
-                proxy.PropertiesChanged += args => proxyReady.SetResult(args);
+                var proxyReady = new TaskCompletionSource<bool>();
+                proxy.readyChanged += args => proxyReady.SetResult(args);
 
-                await proxy.Connect(null);
+                await proxy.CreateProxy(null);
                 await proxyReady.Task;
                 Assert.Equal(proxy.ready, true);
 
@@ -102,10 +102,10 @@ namespace Tests.AddressBook
                 var contactCreatedArg = new contactCreatedArgs();
                 contactCreatedArg.contact = contact;
                 var proxy = new AddressBookDBusProxy(conn1);
-                var proxyReady = new TaskCompletionSource<PropertyChanges>();
-                proxy.PropertiesChanged += args => proxyReady.SetResult(args);
+                var proxyReady = new TaskCompletionSource<bool>();
+                proxy.readyChanged += args => proxyReady.SetResult(args);
 
-                await proxy.Connect(null);
+                await proxy.CreateProxy(null);
                 await proxyReady.Task;
                 Assert.Equal(proxy.ready, true);
                 
@@ -118,6 +118,5 @@ namespace Tests.AddressBook
                 Assert.Equal(contactCreatedArg.contact.number, reply.contact.number);
             }
         }
-
     }
 }

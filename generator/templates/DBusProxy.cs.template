@@ -23,7 +23,7 @@ namespace {{module.qualified_name}}
             _Properties = new {{interface.name}}Properties();
         }
 
-        public async Task Connect(string serviceName)
+        public async Task CreateProxy(string serviceName)
         {
             if (!string.IsNullOrWhiteSpace(serviceName)) {
                 _noObjectManagement = true;
@@ -33,20 +33,22 @@ namespace {{module.qualified_name}}
                 _noObjectManagement = false;
                 (await ObjectManager.Manager(_conn)).InterfacesAdded += args => {
                     if (args.objectPath == _Path) {
-                        RefreshConnection();
+                        _ = RefreshProxy();
                     }
                 };
                 (await ObjectManager.Manager(_conn)).InterfacesRemoved += args => {
                     if (args.objectPath == _Path) {
-                        RefreshConnection();
+                        _ = RefreshProxy();
                     }
                 };
             }
-            await RefreshConnection();
+            await RefreshProxy();
         }
 
-        private async Task RefreshConnection()
+        private async Task RefreshProxy()
         {
+            resetReady();
+
             if (!_noObjectManagement) {
                 _serviceName = (await ObjectManager.Manager(_conn)).ObjectService(_Path);
             }
@@ -59,34 +61,39 @@ namespace {{module.qualified_name}}
                 await TmdsProxy.WatchPropertiesAsync(propertyChanges =>
                 {
                     foreach (KeyValuePair<string, object> changed in propertyChanges.Changed)
-                    { _Properties.GetType().GetProperty(changed.Key)?.SetValue(_Properties, changed.Value); }
-                    if (propertyChanges.Changed.Length != 0) {
-                        PropertiesChanged?.Invoke(propertyChanges);
+                    { 
+                        {% for property in interface.properties %}
+                        {{ "else " if not loop.first else "" }}if (changed.Key == "{{property.name}}")
+                        {
+                            _Properties.{{property.name}} = ({{property.facenet_type}}) changed.Value;
+                            {{property.name}}Changed?.Invoke(_Properties.{{property.name}});
+                        }
+	                    {% endfor %}
+                        if (changed.Key == "ready")
+                        {
+                            _Properties.ready = (bool) changed.Value;
+                            readyChanged?.Invoke(_Properties.ready);
+                        } 
                     }
                 });
                 await GetAllProperties();
             }
-            // TODO set ready to false
         }
 
         private async Task GetAllProperties()
         {
             var properties = await TmdsProxy.GetAllAsync();
-            List<KeyValuePair<string, object>> changedProperties = new List<KeyValuePair<string, object>>();
             {% for property in interface.properties %}
             if (_Properties.{{property.name}} != properties.{{property.name}}) 
             {
-                _Properties.{{property.name}} = properties.{{property.name}};
-                changedProperties.Add(new KeyValuePair<string, object>("{{property.name}}", properties.{{property.name}}));
+                _Properties.{{property.name}} = ({{property.facenet_type}}) properties.{{property.name}};
+                {{property.name}}Changed?.Invoke(_Properties.{{property.name}});
             }
             {% endfor %}
             if (_Properties.ready != properties.ready) 
             {
-                _Properties.ready = properties.ready;
-                changedProperties.Add(new KeyValuePair<string, object>("ready", properties.ready));
-            }
-            if (changedProperties.Count != 0) {
-                PropertiesChanged?.Invoke(new PropertyChanges(changedProperties.ToArray()));
+                _Properties.ready = (bool) properties.ready;
+                readyChanged?.Invoke(_Properties.ready);
             }
         }
 
@@ -110,6 +117,15 @@ namespace {{module.qualified_name}}
             get => _Properties.ready;
         }
 
+        private void resetReady()
+        {
+            if (_Properties.ready != false) 
+            {
+                _Properties.ready = false;
+                readyChanged?.Invoke(false);
+            }
+        }
+
         {% for operation in interface.operations %}
         public Task{% if operation.has_return_value %}<{{operation.facenet_type}}>{% endif %} {{operation.name}}Async({%- for parameter in operation.parameters -%} {{parameter.facenet_type}} {{parameter.name}}{{ ", " if not loop.last else "" }}{% endfor %}) {
             return TmdsProxy.{{operation.name}}Async({%- for parameter in operation.parameters -%}{{parameter.name}}{{ ", " if not loop.last else "" }}{% endfor %});
@@ -120,6 +136,9 @@ namespace {{module.qualified_name}}
         public event Action<{{signal.name}}Args> {{signal.name}};
         {% endfor %}
 
-        public event Action<PropertyChanges> PropertiesChanged;
+        {% for property in interface.properties %}
+        public event Action<{{property.facenet_type}}> {{property.name}}Changed;
+	    {% endfor %}
+        public event Action<bool> readyChanged; 
     }
 }
