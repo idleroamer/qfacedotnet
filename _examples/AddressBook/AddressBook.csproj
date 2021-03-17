@@ -2,12 +2,12 @@
 
     <PropertyGroup>
       <OutputType>Exe</OutputType>
-      <TargetFramework>netcoreapp5</TargetFramework>
+      <TargetFramework>netstandard2.0</TargetFramework>
     </PropertyGroup>
 
     <Target Name="Generate" BeforeTargets="BeforeBuild;BeforeRebuild">
       <Message Text="Generate files..." Importance="High" />
-      <Exec Command="python3 ../../generator/codegen.py --src . --input AddressBook.qface" Outputs="Examples/AddressBook/*.cs">
+      <Exec Command="python3 ../../src/generator/codegen.py --src . --input AddressBook.qface" Outputs="Examples/AddressBook/*.cs">
         <Output ItemName="Generated" TaskParameter="Outputs" />
       </Exec>
       <ItemGroup>
@@ -17,7 +17,7 @@
     </Target>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/facenet.ObjectManager.csproj" />
+    <ProjectReference Include="../../src/facenet.csproj" />
     <PackageReference Include="Tmds.DBus" Version="0.9.1" />
   </ItemGroup>
 

@@ -28,7 +28,7 @@ namespace {{module.qualified_name}}
 
 	    public ObjectPath ObjectPath { get => _Path;}
 
-        public {{interface.name}}DBusAdapter({{interface.name}} impl, string path = "/{{interface.qualified_name|replace(".","/")}}") {
+        public {{interface.name}}DBusAdapter(I{{interface.name}} impl, string path = "/{{interface.qualified_name|replace(".","/")}}") {
             _impl = impl;
             _Path = path;
             {% for property in interface.properties %}

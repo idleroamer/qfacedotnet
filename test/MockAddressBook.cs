@@ -5,7 +5,7 @@ using Tmds.DBus;
 
 namespace Tests.AddressBook
 {
-    public class AddressBook : IAddressBook
+    public class AddressBookImpl : IAddressBook
     {
         public Task mockCreateNewContactAsync(contactCreatedArgs contactCreatedArg)
         {

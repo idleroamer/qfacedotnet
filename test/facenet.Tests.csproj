@@ -1,13 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp5</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <Target Name="Generate" BeforeTargets="BeforeBuild;BeforeRebuild">
       <Message Text="Generate files..." Importance="High" />
-      <Exec Command="python3 ../generator/codegen.py --src . --input AddressBookTests.qface" Outputs="Tests/AddressBook/*.cs">
+      <Exec Command="python3 ../src/generator/codegen.py --src . --input AddressBookTests.qface" Outputs="Tests/AddressBook/*.cs">
         <Output ItemName="Generated" TaskParameter="Outputs" />
       </Exec>
       <ItemGroup>
@@ -17,7 +17,7 @@
   </Target>
 
   <ItemGroup>
-    <ProjectReference Include="../src/facenet.ObjectManager.csproj" />
+    <ProjectReference Include="../src/facenet.csproj" />
     <PackageReference Include="Tmds.DBus" Version="0.9.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
