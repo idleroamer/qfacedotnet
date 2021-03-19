@@ -23,6 +23,11 @@ namespace {{module.qualified_name}}
             _Properties = new {{interface.name}}Properties();
         }
 
+        public async Task CreateProxy()
+        {
+            await CreateProxy(null);
+        }
+
         public async Task CreateProxy(string serviceName)
         {
             if (!string.IsNullOrWhiteSpace(serviceName)) {
@@ -122,7 +127,7 @@ namespace {{module.qualified_name}}
             if (_Properties.ready != false) 
             {
                 _Properties.ready = false;
-                readyChanged?.Invoke(false);
+                readyChanged?.Invoke(_Properties.ready);
             }
         }
 

@@ -19,7 +19,7 @@ namespace {{module.qualified_name}}
             _impl = impl;
             _Path = path;
             {% for property in interface.properties %}
-            _impl.{{property.name}}Changed += args => PropertiesChanged?.Invoke(PropertyChanges.ForProperty("ready", args));
+            _impl.{{property.name}}Changed += args => PropertiesChanged?.Invoke(PropertyChanges.ForProperty("{{property.name}}", args));
 	        {% endfor %}
             _impl.readyChanged += args => PropertiesChanged?.Invoke(PropertyChanges.ForProperty("ready", args));
             {% for signal in interface.signals %}
@@ -58,7 +58,7 @@ namespace {{module.qualified_name}}
         {% endfor %}
 
         {% for signal in interface.signals %}
-        public event Action<{{signal.name}}Args>{{signal.name}};
+        public event Action<{{signal.name}}Args> {{signal.name}};
 
         public Task<IDisposable> Watch{{signal.name}}Async(Action<{{signal.name}}Args> handler)
         {
