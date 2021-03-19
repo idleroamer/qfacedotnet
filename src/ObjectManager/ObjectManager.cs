@@ -69,7 +69,8 @@ namespace facenet
             var servicesPattern = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("facenet.service")) ?
             Environment.GetEnvironmentVariable("facenet.service") : "facelift.service";
             var freedesktopDBusProxy = _conn.CreateProxy<IFreedesktopDBus>("org.freedesktop.DBus", "/org/freedesktop/DBus");
-            await _conn.RegisterServiceAsync(servicesPattern + ".X" + Regex.Replace(Guid.NewGuid().ToString(), "-", ""));
+            var connectInfo = await _conn.ConnectAsync();
+            await _conn.RegisterServiceAsync(servicesPattern + ".X" + Regex.Replace(connectInfo.LocalName, "[:|.]+", ""));
             await _conn.RegisterObjectAsync(this);
 
             foreach (var serviceName in await _conn.ListServicesAsync())

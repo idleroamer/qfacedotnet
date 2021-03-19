@@ -15,10 +15,8 @@ namespace Examples.AddressBook
 
             Task.Run(async () =>
             {
-                await connection.ConnectAsync();
-                await connection.RegisterServiceAsync("facenet.examples.addressbook");
-                var addressBook = new AddressBook();
-                var addressBookAdapter = new AddressBookDBusAdapter(addressBook);
+                var addressBookImpl = new AddressBookImpl();
+                var addressBookAdapter = new AddressBookDBusAdapter(addressBookImpl);
                 await addressBookAdapter.RegisterObject(connection);
                 
                 Console.WriteLine("Press CTRL+C to quit");

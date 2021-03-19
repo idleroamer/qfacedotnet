@@ -18,10 +18,8 @@ namespace Tests.AddressBook
                 await dbusDaemon.StartAsync();
                 var address = dbusDaemon.Address;
                 var conn1 = new Connection(address);
-                await conn1.ConnectAsync();
 
                 var conn2 = new Connection(address);
-                await conn2.ConnectAsync();
                 var addressBookImpl = new AddressBookImpl();
                 var addressBookAdapter = new AddressBookDBusAdapter(addressBookImpl);
                 await addressBookAdapter.RegisterObject(conn2);
@@ -50,10 +48,8 @@ namespace Tests.AddressBook
                 await dbusDaemon.StartAsync();
                 var address = dbusDaemon.Address;
                 var conn1 = new Connection(address);
-                await conn1.ConnectAsync();
 
                 var conn2 = new Connection(address);
-                await conn2.ConnectAsync();
                 var addressBookImpl = new AddressBookImpl();
                 var addressBookAdapter = new AddressBookDBusAdapter(addressBookImpl);
                 await addressBookAdapter.RegisterObject(conn2);
@@ -89,10 +85,8 @@ namespace Tests.AddressBook
                 await dbusDaemon.StartAsync();
                 var address = dbusDaemon.Address;
                 var conn1 = new Connection(address);
-                await conn1.ConnectAsync();
 
                 var conn2 = new Connection(address);
-                await conn2.ConnectAsync();
                 var addressBookImpl = new AddressBookImpl();
                 var addressBookAdapter = new AddressBookDBusAdapter(addressBookImpl);
                 await addressBookAdapter.RegisterObject(conn2);

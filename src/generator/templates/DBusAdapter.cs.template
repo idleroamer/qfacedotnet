@@ -7,19 +7,6 @@ using facenet;
 
 namespace {{module.qualified_name}}
 {
-    [Dictionary]
-    public class {{interface.name}}Properties
-    {
-        {% for property in interface.properties %}
-        {% if property.readonly %}
-        [Property(Access = PropertyAccess.Read)]
-        {% endif %}
-	    public {{property.facenet_type}} {{property.name}};
-	    {% endfor %}
-        [Property(Access = PropertyAccess.Read)]
-        public bool ready;
-    }
-
     public class {{interface.name}}DBusAdapter : IDBus{{interface.name}}
     {
         protected static ObjectPath _DefaultPath = new ObjectPath("/{{interface.qualified_name|replace(".","/")}}");

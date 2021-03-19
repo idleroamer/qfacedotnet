@@ -6,11 +6,25 @@ using Tmds.DBus;
 
 namespace {{module.qualified_name}}
 {
+    [Dictionary]
+    public class {{interface.name}}Properties
+    {
+        {% for property in interface.properties %}
+        {% if property.readonly %}
+        [Property(Access = PropertyAccess.Read)]
+        {% endif %}
+	public {{property.facenet_type}} {{property.name}};
+	{% endfor %}
+        [Property(Access = PropertyAccess.Read)]
+        public bool ready;
+    }
+
     public abstract class I{{interface.name}}
     {
 	    protected {{interface.name}}Properties _Properties;
 
-        public I{{interface.name}}() {
+        public I{{interface.name}}() 
+        {
             _Properties = new {{interface.name}}Properties();
             _Properties.ready = true;
         }
