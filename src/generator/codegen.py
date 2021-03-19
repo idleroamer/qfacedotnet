@@ -23,7 +23,7 @@ def facenet_type(self: object) -> object:
             return 'double'
         return self.type
     elif self.type.is_list:
-        return '{0}[]'.format(facenet_type(self.type.nested))
+        return 'IList<{0}>'.format(facenet_type(self.type.nested))
     elif self.type.is_map:
         return 'IDictionary<string, {0}>'.format(facenet_type(self.type.nested))
     else:
@@ -33,6 +33,13 @@ def facenet_type(self: object) -> object:
         else:
             return split[0]
 
+def facenet_concrete_type(self: object) -> object:
+    if self.type.is_list:
+        return 'List<{0}>'.format(facenet_type(self.type.nested))
+    elif self.type.is_map:
+        return 'Dictionary<string, {0}>'.format(facenet_type(self.type.nested))
+    else:
+        return ""
 
 def has_return_value(self):
     return not self.type.name == 'void'
@@ -47,6 +54,8 @@ setattr(qface.idl.domain.Field, 'facenet_type', property(facenet_type))
 setattr(qface.idl.domain.Operation, 'facenet_type', property(facenet_type))
 setattr(qface.idl.domain.Property, 'facenet_type', property(facenet_type))
 setattr(qface.idl.domain.Parameter, 'facenet_type', property(facenet_type))
+
+setattr(qface.idl.domain.Property, 'facenet_concrete_type', property(facenet_concrete_type))
 
 setattr(qface.idl.domain.Operation, 'has_return_value', property(has_return_value))
 

@@ -13,10 +13,19 @@ namespace {{module.qualified_name}}
         {% if property.readonly %}
         [Property(Access = PropertyAccess.Read)]
         {% endif %}
-	public {{property.facenet_type}} {{property.name}};
-	{% endfor %}
+        public {{property.facenet_type}} {{property.name}};
+        {% endfor %}
         [Property(Access = PropertyAccess.Read)]
         public bool ready;
+
+        public {{interface.name}}Properties()
+        {
+            {% for property in interface.properties %}
+            {% if property.facenet_concrete_type != "" %}
+            {{property.name}} = new {{property.facenet_concrete_type}}{};
+            {% endif %}
+            {% endfor %}
+        }
     }
 
     public abstract class I{{interface.name}}
