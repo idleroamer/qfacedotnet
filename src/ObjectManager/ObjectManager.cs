@@ -67,7 +67,7 @@ namespace facenet
         private async Task Setup()
         {
             var servicesPattern = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("facenet.service")) ?
-            Environment.GetEnvironmentVariable("facenet.service") : "facelift.service";
+            Environment.GetEnvironmentVariable("facenet.service") : "qface.service";
             var freedesktopDBusProxy = _conn.CreateProxy<IFreedesktopDBus>("org.freedesktop.DBus", "/org/freedesktop/DBus");
             var connectInfo = await _conn.ConnectAsync();
             await _conn.RegisterServiceAsync(servicesPattern + ".X" + Regex.Replace(connectInfo.LocalName, "[:|.]+", ""));

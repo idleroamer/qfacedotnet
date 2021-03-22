@@ -4,7 +4,7 @@
     <PackageId>facenet</PackageId>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Description>facenet.dbus Library</Description>
-    <VersionPrefix>0.1.10</VersionPrefix>
+    <VersionPrefix>0.1.11</VersionPrefix>
     <Authors>Mostafa Emami</Authors>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <PackageTags>dbus, qface</PackageTags>
