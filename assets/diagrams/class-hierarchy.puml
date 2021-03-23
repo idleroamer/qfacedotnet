@@ -1,0 +1,30 @@
+@startuml
+skinparam class {
+BackgroundColor PaleGreen
+ArrowColor SeaGreen
+BorderColor SpringGreen
+BackgroundColor<<Impl>> Wheat
+BorderColor<<Impl>> Tomato
+}
+
+interface IAddressBook {
+ <METHODS> 
+}
+
+entity AddressBookDBusAdapter {
+ AddressBookDBusAdapter(IAddressBook)
+ RegisterObject(DBusConnection)
+}
+
+entity AddressBookDBusProxy {
+ CreateProxy()
+}
+
+entity AddressBookImpl <<Impl>> {
+ <METHODS>
+ <SET_PROPERTY_HANDLER>
+}
+IAddressBook <|.. AddressBookImpl : implements
+AddressBookDBusAdapter o-- AddressBookImpl: aggregates
+
+@enduml
