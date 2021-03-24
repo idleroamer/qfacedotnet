@@ -17,15 +17,15 @@ parser.add_argument('--output', dest='output', type=str, required=False, default
 args = parser.parse_args()
 
 
-def facenet_type(self: object) -> object:
+def qfacedotnet_type(self: object) -> object:
     if self.type.is_primitive or self.type.is_void:
         if self.type.name == 'real':
             return 'double'
         return self.type
     elif self.type.is_list:
-        return 'IList<{0}>'.format(facenet_type(self.type.nested))
+        return 'IList<{0}>'.format(qfacedotnet_type(self.type.nested))
     elif self.type.is_map:
-        return 'IDictionary<string, {0}>'.format(facenet_type(self.type.nested))
+        return 'IDictionary<string, {0}>'.format(qfacedotnet_type(self.type.nested))
     else:
         split = self.type.name.split(".")
         if len(split) > 1:
@@ -33,11 +33,11 @@ def facenet_type(self: object) -> object:
         else:
             return split[0]
 
-def facenet_concrete_type(self: object) -> object:
+def qfacedotnet_concrete_type(self: object) -> object:
     if self.type.is_list:
-        return 'List<{0}>'.format(facenet_type(self.type.nested))
+        return 'List<{0}>'.format(qfacedotnet_type(self.type.nested))
     elif self.type.is_map:
-        return 'Dictionary<string, {0}>'.format(facenet_type(self.type.nested))
+        return 'Dictionary<string, {0}>'.format(qfacedotnet_type(self.type.nested))
     else:
         return ""
 
@@ -49,13 +49,13 @@ FileSystem.strict = True
 Generator.strict = True
 
 
-setattr(qface.idl.domain.TypeSymbol, 'facenet_type', property(facenet_type))
-setattr(qface.idl.domain.Field, 'facenet_type', property(facenet_type))
-setattr(qface.idl.domain.Operation, 'facenet_type', property(facenet_type))
-setattr(qface.idl.domain.Property, 'facenet_type', property(facenet_type))
-setattr(qface.idl.domain.Parameter, 'facenet_type', property(facenet_type))
+setattr(qface.idl.domain.TypeSymbol, 'qfacedotnet_type', property(qfacedotnet_type))
+setattr(qface.idl.domain.Field, 'qfacedotnet_type', property(qfacedotnet_type))
+setattr(qface.idl.domain.Operation, 'qfacedotnet_type', property(qfacedotnet_type))
+setattr(qface.idl.domain.Property, 'qfacedotnet_type', property(qfacedotnet_type))
+setattr(qface.idl.domain.Parameter, 'qfacedotnet_type', property(qfacedotnet_type))
 
-setattr(qface.idl.domain.Property, 'facenet_concrete_type', property(facenet_concrete_type))
+setattr(qface.idl.domain.Property, 'qfacedotnet_concrete_type', property(qfacedotnet_concrete_type))
 
 setattr(qface.idl.domain.Operation, 'has_return_value', property(has_return_value))
 

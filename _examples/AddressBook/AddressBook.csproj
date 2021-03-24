@@ -17,7 +17,7 @@
     </Target>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/facenet.csproj" />
+    <ProjectReference Include="../../src/qfacedotnet.csproj" />
     <PackageReference Include="Tmds.DBus" Version="0.9.1" />
   </ItemGroup>
 

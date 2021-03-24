@@ -1,4 +1,4 @@
-using facenet.Tests;
+using qfacedotnet.Tests;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;

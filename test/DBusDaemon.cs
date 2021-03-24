@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace facenet.Tests
+namespace qfacedotnet.Tests
 {
     public enum DBusDaemonProtocol
     {

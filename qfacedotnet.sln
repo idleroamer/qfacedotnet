@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "facenet", "src\facenet.csproj", "{7CE6147E-4DCE-4192-A0F8-2BD42B2087F5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "qfacedotnet", "src\qfacedotnet.csproj", "{7CE6147E-4DCE-4192-A0F8-2BD42B2087F5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_examples", "_examples", "{30E13148-9FCE-4F49-B776-33B27E735A60}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddressBook", "_examples\AddressBook\AddressBook.csproj", "{5ED94EAE-14E7-48C8-981E-D9B9B0C13896}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "facenet.Tests", "test\facenet.Tests.csproj", "{2CC2F092-7EC7-4D2C-B5C7-A6210B444601}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "qfacedotnet.Tests", "test\qfacedotnet.Tests.csproj", "{2CC2F092-7EC7-4D2C-B5C7-A6210B444601}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

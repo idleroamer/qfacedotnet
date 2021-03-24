@@ -1,15 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <PackageId>facenet</PackageId>
+    <PackageId>qfacedotnet</PackageId>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Description>facenet.dbus Library</Description>
+    <Description>qfacedotnet dbus Library</Description>
     <VersionPrefix>0.1.11</VersionPrefix>
     <Authors>Mostafa Emami</Authors>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <PackageTags>dbus, qface</PackageTags>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/idleroamer/facenet</RepositoryUrl>
+    <RepositoryUrl>https://github.com/idleroamer/qfacedotnet</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Mostafa Emami</Copyright>
   </PropertyGroup>

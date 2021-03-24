@@ -10,7 +10,7 @@ namespace Examples.AddressBook
     {
         private static void Main()
         {
-            Console.WriteLine("Hello facenet");
+            Console.WriteLine("Hello qfacedotnet");
             var connection = new Connection(Address.Session);
 
             Task.Run(async () =>

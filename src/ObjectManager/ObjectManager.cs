@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Tmds.DBus;
 
-namespace facenet
+namespace qfacedotnet
 {
     public struct InterfacesAddedArgs
     {
@@ -66,8 +66,8 @@ namespace facenet
 
         private async Task Setup()
         {
-            var servicesPattern = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("facenet.service")) ?
-            Environment.GetEnvironmentVariable("facenet.service") : "qface.service";
+            var servicesPattern = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("qfacedotnet.service")) ?
+            Environment.GetEnvironmentVariable("qfacedotnet.service") : "qface.service";
             var freedesktopDBusProxy = _conn.CreateProxy<IFreedesktopDBus>("org.freedesktop.DBus", "/org/freedesktop/DBus");
             var connectInfo = await _conn.ConnectAsync();
             await _conn.RegisterServiceAsync(servicesPattern + ".X" + Regex.Replace(connectInfo.LocalName, "[:|.]+", ""));
