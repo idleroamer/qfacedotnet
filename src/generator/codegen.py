@@ -27,11 +27,7 @@ def qfacedotnet_type(self: object) -> object:
     elif self.type.is_map:
         return 'IDictionary<string, {0}>'.format(qfacedotnet_type(self.type.nested))
     else:
-        split = self.type.name.split(".")
-        if len(split) > 1:
-            return ''.join(split[:-1]) + '.' + split[-1]
-        else:
-            return split[0]
+        return self.type.name
 
 def qfacedotnet_concrete_type(self: object) -> object:
     if self.type.is_list:

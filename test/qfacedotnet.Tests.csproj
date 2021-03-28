@@ -7,12 +7,17 @@
 
   <Target Name="Generate" BeforeTargets="BeforeBuild;BeforeRebuild">
       <Message Text="Generate files..." Importance="High" />
-      <Exec Command="python3 ../src/generator/codegen.py --src . --input AddressBookTests.qface" Outputs="Tests/AddressBook/*.cs">
-        <Output ItemName="Generated" TaskParameter="Outputs" />
+      <Exec Command="python3 ../src/generator/codegen.py --src . --input AddressBook/AddressBookTests.qface --output AddressBook" Outputs="AddressBook/Tests/AddressBook/*.cs">
+        <Output ItemName="GeneratedAddressBook" TaskParameter="Outputs" />
+      </Exec>
+      <Exec Command="python3 ../src/generator/codegen.py --src . --input Phone/Phone.qface  --output Phone" Outputs="Phone/Tests/Dependency/Phone/*.cs">
+        <Output ItemName="GeneratedPhone" TaskParameter="Outputs" />
       </Exec>
       <ItemGroup>
-        <Compile Include="@(Generated)" />
-        <FileWrites Include="@(Generated)" />
+        <Compile Include="@(GeneratedAddressBook)" />
+        <Compile Include="@(GeneratedPhone)" />
+        <FileWrites Include="@(GeneratedAddressBook)" />
+        <FileWrites Include="@(GeneratedPhone)" />
       </ItemGroup>
   </Target>
 

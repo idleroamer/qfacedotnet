@@ -1,0 +1,9 @@
+module Tests.Dependency.Phone 1.0;
+import Tests.AddressBook 1.0;
+
+interface Phone {
+    list<Tests.AddressBook.Contact> SIMContacts;
+    list<Tests.AddressBook.Contact> PhoneContacts;
+
+    void callContact(Tests.AddressBook.Contact contact);
+}
