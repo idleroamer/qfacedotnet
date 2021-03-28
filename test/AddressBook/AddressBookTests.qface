@@ -1,6 +1,5 @@
 module Tests.AddressBook 1.0;
 
-@ipc-sync: true
 interface AddressBook {
     bool isLoaded;
     Contact currentContact;
