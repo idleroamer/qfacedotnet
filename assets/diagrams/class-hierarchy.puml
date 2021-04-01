@@ -7,24 +7,64 @@ BackgroundColor<<Impl>> Wheat
 BorderColor<<Impl>> Tomato
 }
 
-interface IAddressBook {
- <METHODS> 
+package "Client Process" <<Rectangle>> #Lavender {
+  entity DBusProxy
 }
 
-entity AddressBookDBusAdapter {
- AddressBookDBusAdapter(IAddressBook)
- RegisterObject(DBusConnection)
+package "Service Process" <<Rectangle>> #LightBlue {
+  entity DBusAdapter
+  entity ConcreteImpl
+  interface Interface
 }
 
-entity AddressBookDBusProxy {
+interface Interface {
+ <METHODS>
+ <PROPERTIES>
+ <EVENTS>
+}
+
+left to right direction
+
+together {
+interface DBusInterface
+() METHODS
+() SIGNALS
+() PROPERTIES
+}
+
+DBusAdapter ..|> DBusInterface: implements
+DBusAdapter --> METHODS
+DBusAdapter --> SIGNALS
+DBusAdapter --> PROPERTIES
+
+DBusProxy ..|> DBusInterface: implements
+METHODS --> DBusProxy 
+SIGNALS --> DBusProxy 
+PROPERTIES --> DBusProxy
+
+
+entity DBusAdapter {
+ DBusAdapter(Interface)
+ RegisterObject(connection)
+}
+
+entity DBusProxy {
+ DBusProxy(connection)
  CreateProxy()
 }
 
-entity AddressBookImpl <<Impl>> {
+entity ConcreteImpl <<Impl>> {
  <METHODS>
- <SET_PROPERTY_HANDLER>
 }
-IAddressBook <|.. AddressBookImpl : implements
-AddressBookDBusAdapter o-- AddressBookImpl: aggregates
+
+
+Interface <|.. ConcreteImpl : implements
+DBusAdapter o- ConcreteImpl: aggregates
+
+
+legend
+|<back:PaleGreen>   </back>| Auto-generated |
+|<back:Wheat>   </back>| to be implemented |
+endlegend
 
 @enduml
