@@ -11,6 +11,7 @@
         <Output ItemName="Generated" TaskParameter="Outputs" />
       </Exec>
       <ItemGroup>
+        <Compile Remove="@(Generated)" />
         <Compile Include="@(Generated)" />
         <FileWrites Include="@(Generated)" />
       </ItemGroup>

@@ -16,19 +16,19 @@ There are four main components in `qfacedotnet` architecture.
 
 ## Initialization
 
-The initialization sequence starts by `DBusAdapter` `export`ing object to dbus. Then `DBusProxy` will attempt to fetch all `properties` upon `ConnectToRemoteObject` call, given the bus name of the `service` is known (should be achieved automatically by [Object Management](#Object-Management)).
-Afterward the status of the connection to the service can be checked by the conventional [ready property](#ready-property)]. On successful connection the `DBusProxy` is able to call `DBusAdapter` methods besides it will watch the signals and inform the registered [`observers`](#observers).
+`DBusAdapter` exposes an object on bus via `RegisterObject` from given connection. `DBusProxy` attempts to connect to a remote object via `ConnectProxy` and tries to fetch all `properties`, given the bus name of the `service` is known (should be achieved automatically by [Object Management](#Object-Management)).
+Afterward the status of the connection to the service can be checked by the conventional [ready property](#ready-property)]. On successful connection the `DBusProxy` is able to call `DBusAdapter` methods besides it will watch the signals and invoke corresponding events.
 
 ![Initial Sequence](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.github.com/idleroamer/qfacedotnet/master/assets/diagrams/initial-adapter-proxy-sequence.puml)
 
 ### Ready Property
 
-`ready` is a conventional auxiliary property to be used by `DBusProxy` to ensure that the connection to remote-object was successful and the remote-object `DBusAdapter` is actually ready to handle method calls.
+`ready` is a conventional auxiliary property to be checked to ensure that the connection to remote-object was successful and the remote-object `DBusAdapter` is actually ready to handle method calls.
 
 ## Properties
 
-Properties are available as defined in qface interface both in `DBusAdapter` and `DBusProxy`.
-`DBusProxy` fetches all `properties` (given a successful connection) on `ConnectToRemoteObjec` method call. Properties are always in sync between `DBusProxy` and `DBusAdapter` by the mean of `PropertiesChanged` signal.
+Properties are available as defined in qface interface both in `Interface` and `DBusProxy`.
+`DBusProxy` fetches all `properties` (given a successful connection) on `CreateProxy` call. Properties are always in sync between `DBusProxy` and `DBusAdapter` by the mean of `PropertiesChanged` signal.
 
 Given a property is not defined `readonly` in qface, its value might be changed by `DBusProxy`. See [Properties Checks](#Properties-Checks) on how to optionally verify the assigned value on `DBusAdapter`. 
 
@@ -42,36 +42,38 @@ Remote method calls are initiated by `DBusProxy` and invoke the corresponding `D
 
 Signals defined in qface interface may be invoked from `DBusAdapter` by calling the corresponding function. In turn signals are received by the `DBusProxy` side and registered [Observers](#Observers) are informed.
 
-## Observers
-
-`Observers` watch signals on `DBusProxy` as well as property changes on both `DBusAdapter` and `DBusProxy`. i.e `Observers` are informed in goroutines if watched events emitted.
-
-![observers](http://www.plantuml.com/plantuml/proxy?cache=no&src=https://raw.github.com/idleroamer/qfacedotnet/master/assets/diagrams/observers.puml)
-
 ### Exceptions
 
-`methods` could handle unexpected inputs and states by returning an optional `dbus.Error`.
+`methods` could throw exception of type `DBusException`s on unexpected states. `DBusException`s are caught by `Tmds.DBus` and are transfered into error replies over dbus. 
 
+Equivalently on `client process` those error replies will be caught and `Tmds.DBus` will throw a `DBusException` with same error name and message.
 
-### Properties Checks
-
-It is possible to block unexpected values assigned to `properties` and optionally return an `error` with more info to the client. Simply assign a struct to `DBusAdapter.Set<Property>Callback()` which implements `Set<Property>` interface.
-
-## Go Generate
-
-A python script is the code-generator for qfacedotnet. It is possible to integrate the code-generation in your go files by leveraging go tools.
-
-Use import plus $GOPATH to locate the `codegen.py` and pass the required arguments to the call.
-Optionally use `gofmt` to format the generated files.
+**_NOTE:_** It is important to make sure `ErrorName` is in right format. `*.*`
 
 ```
-import (
-	qfacedotnet "github.com/idleroamer/qfacedotnet/objectManager"
-)
-
-//go:generate python3 $GOPATH/pkg/mod/github.com/idleroamer/qfacedotnet@v<VERSION>/codegen.py --src <SOURCE_PATH_CONTAINING_QFACE_FILES> --input <LIST_OF_INPUTS>
-//go:generate gofmt -w <PATH_OF_GENERATED_FILES>
+throw new DBusException("DBus.Error.InvalidValue", "Error Message")
 ```
+
+## Generation
+
+A python script is the code-generator for `qfacedotnet`. It is possible to integrate the code-generation in your csproj configuration.
+
+```
+<Target Name="Generate" BeforeTargets="BeforeBuild;BeforeRebuild">
+<Message Text="Generate files..." Importance="High" />
+<Exec Command="python3 $(Pkgqfacedotnet)/content/generator/codegen.py --src <SOURCE_PATH_CONTAINING_QFACE_FILES> --input <LIST_OF_INPUTS> Outputs="<OUTPUT_PATH>/*.cs">
+  <Output ItemName="Generated" TaskParameter="Outputs" />
+</Exec>
+<ItemGroup>
+  <Compile Include="@(Generated)" />
+  <FileWrites Include="@(Generated)" />
+</ItemGroup>
+</Target>
+<ItemGroup>
+<PackageReference Include="qfacedotnet" Version="<VERSION>" GeneratePathProperty="true" />
+</ItemGroup>
+```
+
 `--src` argument is important for qfacedotnet to locate the [module interdependencies](#Module-Interdependency) otherwise current directory (where go generator file located) is taken. 
 
 `--input` list of all qface input files to generate bindings for.
@@ -80,28 +82,19 @@ import (
 
 ### Dependencies
 
-The qfacedotnet python dependency are defined in `requirement.txt` file. These dependencies needs to be installed once but nevertheless you can integrate this step as well into go generate.
+The qfacedotnet python dependency are defined in `requirement.txt` file. These dependencies needs to be installed once but nevertheless you can integrate this step as well into project configuration.
 
 ```
-import (
-	qfacedotnet "github.com/idleroamer/qfacedotnet/objectManager"
-)
-
-//go:generate pip3 install -r $GOPATH/pkg/mod/github.com/idleroamer/qfacedotnet@v<VERSION>/requirements.txt
+<Target Name="Generate" BeforeTargets="BeforeBuild;BeforeRebuild">
+<Exec Command="pip3 install -r $(Pkgqfacedotnet)/content/generator/requirements.txt" />
+<ItemGroup>
+<PackageReference Include="qfacedotnet" Version="<VERSION>" GeneratePathProperty="true" />
+</ItemGroup>
 ```
 
 ## Module Interdependency
 
 Modules may import other modules via `import` keyword followed by the imported module name and version.
-In order for `qfacedotnet` generator to be able to find the imported modules, 
-the `@gomod` annotation on `imported module` needs to point to the path where generated files are located.
-
-```
-@gomod: "github.com/idleroamer/qfacedotnet/<PATH_TO_OUTPUT>/Foo/Yoo"
-module Foo.Yoo 
-```
-
-`<PATH_TO_OUTPUT>` defined in [generation step](#go-generate).
 
 ## Object Management
 

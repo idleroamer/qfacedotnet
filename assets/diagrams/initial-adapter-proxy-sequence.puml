@@ -1,0 +1,22 @@
+@startuml
+title Initialization
+box "service process" #LightBlue
+participant Impl #Wheat
+participant DBusAdapter #PaleGreen
+end box
+
+Impl -[hidden]> DBusAdapter
+DBusAdapter -> DBusAdapter: DBusAdapter(Impl) 
+DBusAdapter -> DBus: RegisterObject 
+
+box "client process" #Lavender
+participant DBusProxy #PaleGreen
+end box
+
+DBusProxy -> DBusProxy: CreateProxy
+note right: Tries to fetch all properties \n including "ready" property 
+DBusProxy -> DBus: GetAllProperties
+DBus -> DBusAdapter: GetAllProperties
+DBusAdapter --> DBus: return properties
+DBus --> DBusProxy: return properties
+@enduml

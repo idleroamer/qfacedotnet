@@ -48,14 +48,14 @@ namespace Tests.AddressBook
                 proxy.readyChanged += args => proxyReady.SetResult(args);
                 await proxy.CreateProxy();
                 await proxyReady.Task;
-                Assert.Equal(proxy.isLoaded, true);
+                Assert.True(proxy.isLoaded);
 
                 // check if setproperty from proxy side works
                 var tcsProxy2 = new TaskCompletionSource<bool>();
                 addressBookImpl.isLoadedChanged += args => tcsProxy2.SetResult(args);
                 await proxy.setIsLoaded(false);
                 await tcsProxy2.Task;
-                Assert.Equal(addressBookImpl.isLoaded, false);
+                Assert.False(addressBookImpl.isLoaded);
             }
         }
 
@@ -81,7 +81,7 @@ namespace Tests.AddressBook
 
                 await proxy.CreateProxy();
                 await proxyReady.Task;
-                Assert.Equal(proxy.ready, true);
+                Assert.True(proxy.ready);
 
                 var tcsAdapter = new TaskCompletionSource<contactCreatedArgs>();
                 addressBookImpl.contactCreated += args => tcsAdapter.SetResult(args);
@@ -92,8 +92,8 @@ namespace Tests.AddressBook
 
                 var eventAdapter = await tcsAdapter.Task;
                 var eventProxy = await tcsProxy2.Task;
-                Assert.Equal(eventAdapter.contact.name, eventProxy.contact.name);
-                Assert.Equal(eventAdapter.contact.number, eventProxy.contact.number);
+                Assert.True(eventAdapter.contact.name.Equals(eventProxy.contact.name));
+                Assert.True(eventAdapter.contact.number.Equals(eventProxy.contact.number));
             }
         }
         [Fact]
@@ -120,15 +120,15 @@ namespace Tests.AddressBook
 
                 await proxy.CreateProxy();
                 await proxyReady.Task;
-                Assert.Equal(proxy.ready, true);
+                Assert.True(proxy.ready);
 
                 var tcs = new TaskCompletionSource<contactCreatedArgs>();
                 proxy.contactCreated += args => tcs.SetResult(args);
                 await addressBookImpl.mockCreateNewContactAsync(contactCreatedArg);
 
                 var reply = await tcs.Task;
-                Assert.Equal(contactCreatedArg.contact.name, reply.contact.name);
-                Assert.Equal(contactCreatedArg.contact.number, reply.contact.number);
+                Assert.True(contactCreatedArg.contact.name.Equals(reply.contact.name));
+                Assert.True(contactCreatedArg.contact.number.Equals(reply.contact.number));
             }
         }
 
@@ -150,14 +150,14 @@ namespace Tests.AddressBook
                 proxy.readyChanged += args => proxyReady.TrySetResult(args);
                 await proxy.CreateProxy();
                 await proxyReady.Task;
-                Assert.Equal(proxy.ready, true);
+                Assert.True(proxy.ready);
 
                 var proxyReady2 = new TaskCompletionSource<bool>();
                 proxy.readyChanged += args => proxyReady2.SetResult(args);
                 await addressBookAdapter.UnregisterObject(conn2);
                 
                 await proxyReady2.Task;
-                Assert.Equal(proxy.ready, false);
+                Assert.False(proxy.ready);
             }
         }
         [Fact]
@@ -178,7 +178,7 @@ namespace Tests.AddressBook
                 proxy.readyChanged += args => proxyReady.TrySetResult(args);
                 await proxy.CreateProxy();
                 await proxyReady.Task;
-                Assert.Equal(proxy.ready, true);
+                Assert.True(proxy.ready);
 
                 var methodException = await Assert.ThrowsAsync<DBusException>(() => proxy.selectContactAsync(-1));
                 Assert.Equal("DBus.Error.InvalidValue", methodException.ErrorName);

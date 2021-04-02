@@ -4,8 +4,11 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-
-  <Target Name="Generate" BeforeTargets="BeforeBuild;BeforeRebuild">
+  <PropertyGroup>
+    <CoreCompileDependsOn>Generate;$(CoreCompileDependsOn)</CoreCompileDependsOn>
+  </PropertyGroup>
+  
+  <Target Name="Generate">
       <Message Text="Generate files..." Importance="High" />
       <Exec Command="python3 ../src/generator/codegen.py --src . --input AddressBook/AddressBookTests.qface --output AddressBook" Outputs="AddressBook/Tests/AddressBook/*.cs">
         <Output ItemName="GeneratedAddressBook" TaskParameter="Outputs" />
@@ -14,10 +17,9 @@
         <Output ItemName="GeneratedPhone" TaskParameter="Outputs" />
       </Exec>
       <ItemGroup>
-        <Compile Include="@(GeneratedAddressBook)" />
-        <Compile Include="@(GeneratedPhone)" />
-        <FileWrites Include="@(GeneratedAddressBook)" />
-        <FileWrites Include="@(GeneratedPhone)" />
+        <Compile Remove="@(GeneratedAddressBook);@(GeneratedPhone)" />
+        <Compile Include="@(GeneratedAddressBook);@(GeneratedPhone)" />
+        <FileWrites Include="@(GeneratedAddressBook);@(GeneratedPhone)" />
       </ItemGroup>
   </Target>
 
