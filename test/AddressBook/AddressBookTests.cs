@@ -1,6 +1,7 @@
 using qfacedotnet.Tests;
 using System;
 using System.Runtime.InteropServices;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Tmds.DBus;
@@ -52,7 +53,7 @@ namespace Tests.AddressBook
                 // check if setproperty from proxy side works
                 var tcsProxy2 = new TaskCompletionSource<bool>();
                 addressBookImpl.isLoadedChanged += args => tcsProxy2.SetResult(args);
-                proxy.isLoaded = false;
+                await proxy.setIsLoaded(false);
                 await tcsProxy2.Task;
                 Assert.Equal(addressBookImpl.isLoaded, false);
             }
@@ -157,6 +158,35 @@ namespace Tests.AddressBook
                 
                 await proxyReady2.Task;
                 Assert.Equal(proxy.ready, false);
+            }
+        }
+        [Fact]
+        public async Task Exceptions()
+        {
+            using (var dbusDaemon = new DBusDaemon())
+            {
+                await dbusDaemon.StartAsync();
+                var address = dbusDaemon.Address;
+                var conn1 = new Connection(address);
+                var addressBookImpl = new AddressBookImpl();
+                var addressBookAdapter = new AddressBookDBusAdapter(addressBookImpl);
+                var conn2 = new Connection(address);
+                await addressBookAdapter.RegisterObject(conn2);
+
+                var proxy = new AddressBookDBusProxy(conn1);
+                var proxyReady = new TaskCompletionSource<bool>();
+                proxy.readyChanged += args => proxyReady.TrySetResult(args);
+                await proxy.CreateProxy();
+                await proxyReady.Task;
+                Assert.Equal(proxy.ready, true);
+
+                var methodException = await Assert.ThrowsAsync<DBusException>(() => proxy.selectContactAsync(-1));
+                Assert.Equal("DBus.Error.InvalidValue", methodException.ErrorName);
+                Assert.Equal("Invalid index", methodException.ErrorMessage);
+              
+                var propException = await Assert.ThrowsAsync<DBusException>(() => proxy.setIntValues(new List<int>{-1}));
+                Assert.Equal("DBus.Error.InvalidInput", propException.ErrorName);
+                Assert.Equal("Invalid input", propException.ErrorMessage);
             }
         }
     }

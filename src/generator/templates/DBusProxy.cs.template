@@ -108,14 +108,14 @@ namespace {{module.qualified_name}}
         public {{property.qfacedotnet_type}} {{property.name}}
         {
             get => _Properties.{{property.name}};
-            {% if not property.readonly %}
-            set {
-                if (_Properties.{{property.name}} != value) {
-                    TmdsProxy.SetAsync("{{property.name}}", value);
-                }
-            }
-            {% endif %}
         }
+        {% if not property.readonly %}
+        public virtual async Task set{{property.cap_name}}({{property.qfacedotnet_type}} value) {
+            if (_Properties.{{property.name}} != value) {
+                await TmdsProxy.SetAsync("{{property.name}}", value).ConfigureAwait(false);
+            }
+        }
+        {% endif %}
 	    {% endfor %}
         public bool ready
         {

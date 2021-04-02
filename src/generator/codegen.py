@@ -41,6 +41,9 @@ def has_return_value(self):
     return not self.type.name == 'void'
 
 
+def cap_name(self):
+    return ' '.join(word[0].upper() + word[1:] for word in self.name.split())
+
 FileSystem.strict = True
 Generator.strict = True
 
@@ -51,6 +54,8 @@ setattr(qface.idl.domain.Operation, 'qfacedotnet_type', property(qfacedotnet_typ
 setattr(qface.idl.domain.Property, 'qfacedotnet_type', property(qfacedotnet_type))
 setattr(qface.idl.domain.Parameter, 'qfacedotnet_type', property(qfacedotnet_type))
 
+
+setattr(qface.idl.domain.Property, 'cap_name', property(cap_name))
 setattr(qface.idl.domain.Property, 'qfacedotnet_concrete_type', property(qfacedotnet_concrete_type))
 
 setattr(qface.idl.domain.Operation, 'has_return_value', property(has_return_value))
