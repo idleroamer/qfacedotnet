@@ -47,7 +47,7 @@ namespace {{module.qualified_name}}
         public {{property.qfacedotnet_type}} {{property.name}}
         {
             get => _Properties.{{property.name}};
-            set => Set{{property.name}}(value);
+            set => Set{{property.cap_name}}(value);
         }
 	    {% endfor %}
         public bool ready
@@ -56,7 +56,7 @@ namespace {{module.qualified_name}}
         }
 
         {% for property in interface.properties %}
-        public virtual void Set{{property.name}}({{property.qfacedotnet_type}} value)
+        public virtual void Set{{property.cap_name}}({{property.qfacedotnet_type}} value)
         {
             if (_Properties.{{property.name}} != value) {
                 _Properties.{{property.name}} = value;

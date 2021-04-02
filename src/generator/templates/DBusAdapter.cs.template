@@ -41,7 +41,7 @@ namespace {{module.qualified_name}}
         public virtual {{property.qfacedotnet_type}} {{property.name}}
         {
             get => _impl.{{property.name}};
-            set => _impl.Set{{property.name}}(value);
+            set => _impl.Set{{property.cap_name}}(value);
         }
 	    {% endfor %}
         public virtual bool ready

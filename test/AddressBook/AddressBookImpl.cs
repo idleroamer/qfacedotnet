@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Tmds.DBus;
@@ -24,6 +25,9 @@ namespace Tests.AddressBook
         public override Task selectContactAsync(int contactId)
         {
             return Task.Run( () => { 
+                    if (contactId < 0) {
+                        throw new DBusException("DBus.Error.InvalidValue", "Invalid index");
+                    }
                                    } );
         }
         public override Task<bool> deleteContactAsync(int contactId)
@@ -41,6 +45,15 @@ namespace Tests.AddressBook
         {
             return Task.FromResult(true);
         }
-
+        public override void SetIntValues(IList<int> value)
+        {
+            if (!value.Contains(-1))
+            {
+                base.SetIntValues(value);
+            }
+            else {
+                 throw new DBusException("DBus.Error.InvalidInput", "Invalid input");
+            }
+        }
     }
 }
