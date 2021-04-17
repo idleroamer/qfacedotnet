@@ -42,8 +42,11 @@ namespace qfacedotnet
         private IDictionary<ObjectPath, string> objectServices;
         private IDictionary<ObjectPath, IDictionary<string, IDictionary<string, object>>> managedObjects;
         private HashSet<string> _watchedServices;
-
+        private ConnectionInfo _connInfo;
         private Connection _conn;
+
+        public ConnectionInfo connectionInfo {get => _connInfo;}
+        public Connection connection {get => _conn;}
 
         public static async Task<ObjectManager> Manager(Connection conn)
         {
@@ -69,8 +72,8 @@ namespace qfacedotnet
             var servicesPattern = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("qfacedotnet.service")) ?
             Environment.GetEnvironmentVariable("qfacedotnet.service") : "qface.service";
             var freedesktopDBusProxy = _conn.CreateProxy<IFreedesktopDBus>("org.freedesktop.DBus", "/org/freedesktop/DBus");
-            var connectInfo = await _conn.ConnectAsync();
-            await _conn.RegisterServiceAsync(servicesPattern + ".X" + Regex.Replace(connectInfo.LocalName, "[:|.]+", ""));
+            _connInfo = await _conn.ConnectAsync();
+            await _conn.RegisterServiceAsync(servicesPattern + ".X" + Regex.Replace(_connInfo.LocalName, "[:|.]+", ""));
             await _conn.RegisterObjectAsync(this);
 
             foreach (var serviceName in await _conn.ListServicesAsync())

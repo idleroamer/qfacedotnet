@@ -61,7 +61,7 @@ A python script is the code-generator for `qfacedotnet`. It is possible to integ
 ```
 <Target Name="Generate" BeforeTargets="BeforeBuild;BeforeRebuild">
 <Message Text="Generate files..." Importance="High" />
-<Exec Command="python3 $(Pkgqfacedotnet)/content/generator/codegen.py --src <SOURCE_PATH_CONTAINING_QFACE_FILES> --input <LIST_OF_INPUTS> Outputs="<OUTPUT_PATH>/*.cs">
+<Exec Command="python3 $(Pkgqfacedotnet)/content/generator/codegen.py --input <LIST_OF_INPUTS> --dependency <LIST_OF_DEPENDENCIES>  Outputs="<OUTPUT_PATH>/*.cs">
   <Output ItemName="Generated" TaskParameter="Outputs" />
 </Exec>
 <ItemGroup>
@@ -74,9 +74,9 @@ A python script is the code-generator for `qfacedotnet`. It is possible to integ
 </ItemGroup>
 ```
 
-`--src` argument is important for qfacedotnet to locate the [module interdependencies](#Module-Interdependency) otherwise current directory (where go generator file located) is taken. 
-
 `--input` list of all qface input files to generate bindings for.
+
+`--dependency` argument is important for qfacedotnet to locate the [module interdependencies](#Module-Interdependency) otherwise current directory (where go generator file located) is taken. 
 
 `--output` optional output path of generated files otherwise module name will be used as path.
 

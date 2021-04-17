@@ -12,7 +12,7 @@ namespace qfacedotnet.Tests
         Tcp,
         Default = Unix
     }
-    class DBusDaemon : IDisposable
+    public class DBusDaemon : IDisposable
     {
         // On an SELinux system the DBus daemon gets the security context
         // of the peer: the call 'getsockopt(fd, SOL_SOCKET, SO_PEERSEC, ...)'

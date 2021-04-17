@@ -1,3 +1,4 @@
+using qfacedotnet;
 using qfacedotnet.Tests;
 using System;
 using System.Runtime.InteropServices;
@@ -155,7 +156,7 @@ namespace Tests.AddressBook
                 var proxyReady2 = new TaskCompletionSource<bool>();
                 proxy.readyChanged += args => proxyReady2.SetResult(args);
                 await addressBookAdapter.UnregisterObject(conn2);
-                
+
                 await proxyReady2.Task;
                 Assert.False(proxy.ready);
             }
@@ -183,11 +184,42 @@ namespace Tests.AddressBook
                 var methodException = await Assert.ThrowsAsync<DBusException>(() => proxy.selectContactAsync(-1));
                 Assert.Equal("DBus.Error.InvalidValue", methodException.ErrorName);
                 Assert.Equal("Invalid index", methodException.ErrorMessage);
-              
-                var propException = await Assert.ThrowsAsync<DBusException>(() => proxy.setIntValues(new List<int>{-1}));
+
+                var propException = await Assert.ThrowsAsync<DBusException>(() => proxy.setIntValues(new List<int> { -1 }));
                 Assert.Equal("DBus.Error.InvalidInput", propException.ErrorName);
                 Assert.Equal("Invalid input", propException.ErrorMessage);
             }
         }
+        [Fact]
+        public async Task ServiceNameKnown()
+        {
+            using (var dbusDaemon = new DBusDaemon())
+            {
+                await dbusDaemon.StartAsync();
+                var address = dbusDaemon.Address;
+                var conn1 = new Connection(address);
+
+                var conn2 = new Connection(address);
+                var addressBookImpl = new AddressBookImpl();
+                var addressBookAdapter = new AddressBookDBusAdapter(addressBookImpl);
+                await addressBookAdapter.RegisterObject(conn2);
+                addressBookImpl.isLoaded = true;
+                var proxy = new AddressBookDBusProxy(conn1);
+                var proxyReady = new TaskCompletionSource<bool>();
+                proxy.readyChanged += args => proxyReady.SetResult(args);
+                var conn2Info = (await ObjectManager.Manager(conn2)).connectionInfo;
+                await proxy.CreateProxy(conn2Info.LocalName);
+                await proxyReady.Task;
+                Assert.True(proxy.isLoaded);
+
+                // check if setproperty from proxy side works
+                var tcsProxy2 = new TaskCompletionSource<bool>();
+                addressBookImpl.isLoadedChanged += args => tcsProxy2.SetResult(args);
+                await proxy.setIsLoaded(false);
+                await tcsProxy2.Task;
+                Assert.False(addressBookImpl.isLoaded);
+            }
+        }
+
     }
 }

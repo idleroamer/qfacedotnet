@@ -10,21 +10,19 @@
   
   <Target Name="Generate">
       <Message Text="Generate files..." Importance="High" />
-      <Exec Command="python3 ../src/generator/codegen.py --src . --input AddressBook/AddressBookTests.qface --output AddressBook" Outputs="AddressBook/Tests/AddressBook/*.cs">
-        <Output ItemName="GeneratedAddressBook" TaskParameter="Outputs" />
-      </Exec>
-      <Exec Command="python3 ../src/generator/codegen.py --src . --input Phone/Phone.qface  --output Phone" Outputs="Phone/Tests/Dependency/Phone/*.cs">
-        <Output ItemName="GeneratedPhone" TaskParameter="Outputs" />
+      <Exec Command="python3 ../../src/generator/codegen.py --input AddressBookTests.qface --output AddressBook" Outputs="AddressBook/Tests/AddressBook/*.cs">
+        <Output ItemName="Generated" TaskParameter="Outputs" />
       </Exec>
       <ItemGroup>
-        <Compile Remove="@(GeneratedAddressBook);@(GeneratedPhone)" />
-        <Compile Include="@(GeneratedAddressBook);@(GeneratedPhone)" />
-        <FileWrites Include="@(GeneratedAddressBook);@(GeneratedPhone)" />
+        <Compile Remove="@(Generated);" />
+        <Compile Include="@(Generated);" />
+        <FileWrites Include="@(Generated);" />
       </ItemGroup>
   </Target>
 
   <ItemGroup>
-    <ProjectReference Include="../src/qfacedotnet.csproj" />
+    <ProjectReference Include="../../src/qfacedotnet.csproj" />
+    <ProjectReference Include="../tools/qfacedotnet.Test.Tools.csproj" />
     <PackageReference Include="Tmds.DBus" Version="0.9.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
@@ -32,7 +30,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="xunit" Version="2.4.1" />
-    <Content Include="xunit.runner.json">
+    <Content Include="../tools/xunit.runner.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
