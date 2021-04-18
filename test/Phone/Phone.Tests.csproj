@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <PropertyGroup>
+    <CoreCompileDependsOn>Generate;$(CoreCompileDependsOn)</CoreCompileDependsOn>
+  </PropertyGroup>
+  
+  <Target Name="Generate">
+      <Message Text="Generate files..." Importance="High" />
+      <Exec Command="python3 ../../src/generator/codegen.py --input Phone.qface --output Phone" Outputs="Phone/Tests/Dependency/Phone/*.cs">
+        <Output ItemName="Generated" TaskParameter="Outputs" />
+      </Exec>
+      <ItemGroup>
+        <Compile Remove="@(Generated)" />
+        <Compile Include="@(Generated)" />
+        <FileWrites Include="@(Generated)" />
+      </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/qfacedotnet.csproj" />
+    <ProjectReference Include="../tools/qfacedotnet.Test.Tools.csproj" />
+    <ProjectReference Include="../AddressBook/AddressBook.Tests.csproj" />
+    <PackageReference Include="Tmds.DBus" Version="0.9.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <Content Include="../tools/xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>

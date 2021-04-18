@@ -11,7 +11,7 @@ namespace {{module.qualified_name}}
     public class {{struct.name}}
     {
         {% for field in struct.fields %}
-        private {{field.qfacedotnet_type}} _{{field.name}} = default ({{field.qfacedotnet_type}});
+        private {{field.qfacedotnet_type}} _{{field.name}};
         public {{field.qfacedotnet_type}} {{field.name}}
         {
             get

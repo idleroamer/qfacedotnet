@@ -33,6 +33,7 @@ namespace {{module.qualified_name}}
             if (!string.IsNullOrWhiteSpace(serviceName)) {
                 _noObjectManagement = true;
                 _serviceName = serviceName;
+                await ObjectManager.Manager(_conn);
             }
             else {
                 _noObjectManagement = false;

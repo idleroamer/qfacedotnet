@@ -7,13 +7,13 @@ import subprocess
 import sys
 import os
 
-parser = argparse.ArgumentParser(description='Generate high-level IPC/RPC interfaces defined in qface based on Tmds.DBus')
-parser.add_argument('--src', dest='src', type=str, required=False, default='.',
-                    help='where all .qface definitions are located (possibly in sub-directories), default value is current directory')
+parser = argparse.ArgumentParser(description='Generates bindings for Tmds based on the qface IDL.')
 parser.add_argument('--input', dest='input', type=str, required=True, nargs='+',
-                    help='qface interface relative to src path')
+                    help='input qface interfaces, folders will be walked looking for qface interfaces')
 parser.add_argument('--output', dest='output', type=str, required=False, default='.',
-                    help='path to place the generated code relative to go module base path, default value is current directory')
+                    help='relative output path of the generated code, default value is current directory')
+parser.add_argument('--dependency', dest='dependency', type=str, required=False, nargs='+', default=[],
+                    help='path to dependency qface interfaces, leave empty if there is no interdependency')
 args = parser.parse_args()
 
 
@@ -61,12 +61,9 @@ setattr(qface.idl.domain.Property, 'qfacedotnet_concrete_type', property(qfacedo
 setattr(qface.idl.domain.Operation, 'has_return_value', property(has_return_value))
 
 here = Path(__file__).dirname()
-inputs = []
-for i in args.input:
-    inputs.append(os.path.join(args.src, i))
-system = FileSystem.parse(inputs)
+system = FileSystem.parse(args.input)
 modulesToGenerate = [module.name for module in system.modules]
-system = FileSystem.parse(args.src)
+system = FileSystem.parse(args.input + args.dependency)
 output = args.output
 generator = Generator(search_path=Path(here / 'templates'))
 generator.destination = output
