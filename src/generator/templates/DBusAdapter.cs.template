@@ -7,12 +7,12 @@ using qfacedotnet;
 
 namespace {{module.qualified_name}}
 {
-    public class {{interface.name}}DBusAdapter : IDBus{{interface.name}}
+    public class {{interface.name}}DBusAdapter : IDBus{{interface.name}}, IDisposable
     {
         protected static ObjectPath _DefaultPath = new ObjectPath("/{{interface.qualified_name|replace(".","/")}}");
         private readonly ObjectPath _Path;
         protected I{{interface.name}} _impl;
-
+        private Connection _conn;
 	    public ObjectPath ObjectPath { get => _Path;}
 
         public {{interface.name}}DBusAdapter(I{{interface.name}} impl, string path = "/{{interface.qualified_name|replace(".","/")}}") {
@@ -28,6 +28,7 @@ namespace {{module.qualified_name}}
         }
 
         public async Task RegisterObject(Connection conn) {
+            _conn = conn;
             (await qfacedotnet.ObjectManager.Manager(conn)).RegisterObject(_Path, new Dictionary<string, IDictionary<string, object>>());
             await conn.RegisterObjectAsync(this);
         }
@@ -35,6 +36,11 @@ namespace {{module.qualified_name}}
         public async Task UnregisterObject(Connection conn) {
             (await qfacedotnet.ObjectManager.Manager(conn)).UnregisterObject(_Path, new string[]{});
             conn.UnregisterObject(this);
+        }
+
+        public async void Dispose()
+        {
+            await UnregisterObject(_conn);
         }
 
         {% for property in interface.properties %}

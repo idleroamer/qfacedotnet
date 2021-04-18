@@ -155,7 +155,7 @@ namespace Tests.AddressBook
 
                 var proxyReady2 = new TaskCompletionSource<bool>();
                 proxy.readyChanged += args => proxyReady2.SetResult(args);
-                await addressBookAdapter.UnregisterObject(conn2);
+                addressBookAdapter.Dispose();
 
                 await proxyReady2.Task;
                 Assert.False(proxy.ready);
