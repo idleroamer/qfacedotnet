@@ -162,6 +162,34 @@ namespace Tests.AddressBook
             }
         }
         [Fact]
+        public async Task SeviceConnectionDisconnected()
+        {
+            using (var dbusDaemon = new DBusDaemon())
+            {
+                await dbusDaemon.StartAsync();
+                var address = dbusDaemon.Address;
+                var conn1 = new Connection(address);
+                var addressBookImpl = new AddressBookImpl();
+                var addressBookAdapter = new AddressBookDBusAdapter(addressBookImpl);
+                var conn2 = new Connection(address);
+                await addressBookAdapter.RegisterObject(conn2);
+
+                var proxy = new AddressBookDBusProxy(conn1);
+                var proxyReady = new TaskCompletionSource<bool>();
+                proxy.readyChanged += args => proxyReady.TrySetResult(args);
+                await proxy.CreateProxy();
+                await proxyReady.Task;
+                Assert.True(proxy.ready);
+
+                var proxyReady2 = new TaskCompletionSource<bool>();
+                proxy.readyChanged += args => proxyReady2.SetResult(args);
+                conn2.Dispose();
+                
+                await proxyReady2.Task;
+                Assert.False(proxy.ready);
+            }
+        }
+        [Fact]
         public async Task Exceptions()
         {
             using (var dbusDaemon = new DBusDaemon())
