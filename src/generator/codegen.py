@@ -9,7 +9,7 @@ import os
 
 parser = argparse.ArgumentParser(description='Generates bindings for Tmds based on the qface IDL.')
 parser.add_argument('--input', dest='input', type=str, required=True, nargs='+',
-                    help='input qface interfaces, folders will be walked looking for qface interfaces')
+                    help='input qface interfaces, folders will be globbed looking for qface interfaces')
 parser.add_argument('--output', dest='output', type=str, required=False, default='.',
                     help='relative output path of the generated code, default value is current directory')
 parser.add_argument('--dependency', dest='dependency', type=str, required=False, nargs='+', default=[],

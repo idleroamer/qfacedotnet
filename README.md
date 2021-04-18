@@ -65,6 +65,7 @@ A python script is the code-generator for `qfacedotnet`. It is possible to integ
   <Output ItemName="Generated" TaskParameter="Outputs" />
 </Exec>
 <ItemGroup>
+  <Compile Remove="@(Generated)" />
   <Compile Include="@(Generated)" />
   <FileWrites Include="@(Generated)" />
 </ItemGroup>
@@ -114,11 +115,18 @@ A predefined name pattern of bus name makes detection of related services possib
 
 **_NOTE:_**  The "qface.registry." pattern is used in case "DBUS_SERVICE_NAME_PATTERN" environment variable not defined
 
-### Life time of objects
+### Service Lifetime
 
-One may end the a service lifetime on dbus by unregistering the `DBusAdapter`.
+Individual services can be disposed by respective `DBusAdapter`. 
+Given [object management](#Object-Management) governs service-client relation it would lead into connected `DBusProxy`s [ready property](#ready-property)] to be set to false.
 
 ```
-server, err := dbus.SessionBus()
-qfacedotnet.ObjectManager(server).UnregisterObject(DBusAdapter.ObjectPath(), nil)
+DBusAdapter.Dispose();
 ```
+
+## Limitation
+
+There are some limitation with regards to qface:
+* keyword [Model](https://doc.qt.io/qt-5/model-view-programming.html) is not supported
+* keyword [Flag](https://doc.qt.io/QtIVI/idl-syntax.html#enum-or-flag) is not supported 
+* extends keyword is not supported
